@@ -1,0 +1,62 @@
+-- drop function web.product_list_get(integer[], boolean);
+
+create or replace
+function web.product_list_get
+(
+    aids integer[],
+    aforse_visibility boolean default false
+) returns
+table (
+    id integer,
+    sku varchar,
+    name varchar,
+    url varchar,
+    manufacturer_id integer,
+    price numeric,
+    previous_price numeric,
+    diagram varchar,
+    lookup_no smallint,
+    vehicle_id varchar,
+    note text,
+    description text,
+    short_description text,
+    image text,
+    image_thumb text,
+    available integer,
+    card_attributes json,
+    images json,
+    images_thumb json,
+    category_id integer
+) as $$
+begin
+    return query
+    select p.id,
+           p.sku::varchar,
+           p.name::varchar,
+           web.product_url_get(p.id),
+           p.manufacturer_id,
+           p.price,
+           p.previous_price,
+           (select d.diagram from shop.product_diagram d where product_id = p.id limit 1),
+           (select d.lookup_no from shop.product_diagram d where product_id = p.id limit 1),
+           substring(p.sku from '-(.+)$')::varchar,
+           web.get_attribute_value(p.id, web.get_attribute_id('Note')),
+           web.get_product_description(p.id),
+           web.get_product_description(p.id, 100),
+           web.get_product_main_image(p.id),
+           web.get_product_main_image(p.id, 200),
+           p.available,
+           coalesce((select json_agg(f.*) from web.get_product_card_attributes(p.id) f), '[]'::json),
+           coalesce((select json_agg(f.*) from web.get_product_images(p.id) f), '[]'::json),
+           coalesce((select json_agg(f.*) from web.get_product_images(p.id, 200) f), '[]'::json),
+           web.get_product_main_category(p.id)
+      from shop.product p
+      /* we use WITH ORDINALITY construction to preserve elements positions in array */
+      join (select * from unnest(aids) with ordinality as u(id, ordinality)) ids using (id)
+     where (p.is_visible or aforse_visibility)
+       and p.dt_deleted is null
+      order by ids.ordinality, ids.id;
+end;
+$$ language plpgsql security definer stable;
+
+alter function web.product_list_get(integer[], boolean) owner to shop;

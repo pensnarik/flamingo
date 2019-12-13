@@ -1,0 +1,12 @@
+create or replace
+function web.sef_from_text(atext text) returns text as $$
+declare
+    vresult text;
+begin
+    vresult := regexp_replace(web.transliteration(lower(atext)), '\s+', '-', 'g');
+
+    return regexp_replace(vresult, '[^a-z0-9-]+', '', 'g');
+end;
+$$ language plpgsql immutable;
+
+alter function web.sef_from_text(text) owner to shop;

@@ -1,0 +1,21 @@
+create or replace
+function api.manufacturer_get
+(
+    aname varchar,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vid integer;
+begin
+    select id into vid from shop.manufacturer where name = aname;
+
+    if vid is null and acreate_if_not_exists then
+        insert into shop.manufacturer(name) values (aname)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function api.manufacturer_get(varchar, boolean) owner to shop;

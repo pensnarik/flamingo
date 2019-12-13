@@ -1,0 +1,15 @@
+create or replace
+function shop.tu_product_available() returns trigger as $$
+begin
+    if new.available is distinct from old.available then
+        insert into stat.product_available_history (product_id, available)
+        values (new.id, new.available);
+    end if;
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger tu_product_available
+    after update of available on shop.product for each row execute procedure
+    shop.tu_product_available();

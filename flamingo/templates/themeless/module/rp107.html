@@ -1,0 +1,53 @@
+<html lang="ru">
+<head>
+    <style>
+        html {
+            font-family: Arial;
+        }
+        body {
+            background-color: #fff;
+        }
+
+        td.square {
+            /*width: 7.14%;*/
+            border: 1px solid #000;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table.main {
+            /*border: 3px solid #000;*/
+        }
+        table.main td, th {
+            border: 1px solid #000;
+        }
+        table.main tr {
+            line-height: 30px;
+        }
+
+        table.id {
+            border-collapse: separate;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        table.id tr {
+            line-height: 30px;
+        }
+</style>
+</head>
+<body>
+    <table width="100%" class="outer" cellpadding="20">
+        <tr>
+            <td width="50%">
+                {% include 'module/rp107-part.html' %}
+            </td>
+            <td width="50%">
+                {% include 'module/rp107-part.html' %}
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,37 @@
+create or replace
+function admin.update_product
+(
+    aproduct_id integer,
+    aname text,
+    adescription text,
+    aprice numeric,
+    aavailable integer
+) returns integer as $$
+declare
+    vid integer;
+begin
+    update shop.product
+       set name = aname,
+           price = aprice,
+           available = aavailable
+     where id = aproduct_id
+    returning id into vid;
+
+    if adescription is null then
+        delete from shop.product_description where product_id = aproduct_id;
+    else
+        update shop.product_description
+           set description = adescription
+         where product_id = aproduct_id;
+
+        if not found then
+            insert into shop.product_description(product_id, description)
+            values(aproduct_id, adescription);
+        end if;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.update_product(integer, text, text, numeric, integer) is 'Updates a product';

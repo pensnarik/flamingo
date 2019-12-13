@@ -1,0 +1,37 @@
+<shop name="{{ config.BaseURL }}" export_date="{{ date }}">
+
+{% for order in orders %}
+
+<order id="{{ order['orders_export']['order_id'] }}">
+    <date>{{ order['orders_export']['dt_create'] }}</date>
+    <amount>{{ order['orders_export']['amount'] }}</amount>
+    <user_ip>{{ order['orders_export']['user_ip'] }}</user_ip>
+    <phone>{{ order['orders_export']['phone'] }}</phone>
+    <email>{{ order['orders_export']['email'] }}</email>
+    <address>{{ order['orders_export']['address'] }}</address>
+    <name>{{ order['orders_export']['name'] }}</name>
+    <last_name>{{ order['orders_export']['last_name'] }}</last_name>
+    <patronimyc_name>{{ order['orders_export']['patronymic_name'] }}</patronimyc_name>
+
+    <items>
+    {% for item in order['orders_export']['items']|sort(attribute='id') %}
+        <item id="{{ item['id'] }}">
+            <name>{{ item['name'] }}</name>
+            <price>{{ item['price'] }}</price>
+            <quantity>{{ item['quantity'] }}</quantity>
+            <amount>{{ item['amount'] }}</amount>
+        </item>
+    {% endfor %}
+        <item id="delivery">
+            <name>{{ order['orders_export']['delivery_name'] }}</name>
+            <code>{% if order['orders_export']['delivery_code'] %}{{ order['orders_export']['delivery_code'] }}{% endif %}</code>
+            <price>{{ order['orders_export']['delivery_cost'] }}</price>
+            <quantity>1</quantity>
+            <amount>{{ order['orders_export']['delivery_cost'] }}</amount>
+        </item>
+    </items>
+</order>
+
+{% endfor %}
+
+</shop>

@@ -1,0 +1,25 @@
+create or replace
+function web.get_order_items
+(
+    aorder_id integer,
+    atoken varchar
+) returns table
+(
+    id          integer,
+    product_id  integer,
+    product_sku varchar,
+    quantity    integer,
+    price       numeric,
+    amount      numeric,
+    name        varchar
+) as $$
+begin
+    return query
+    select i.id, i.product_id, p.sku::varchar, i.quantity, i.price, i.amount, p.name::varchar
+      from shop.order_item i
+      join shop.product p on p.id = i.product_id
+      join shop.customer_order o on o.id = i.order_id
+     where i.order_id = aorder_id
+     order by i.id;
+end;
+$$ language plpgsql security definer stable;

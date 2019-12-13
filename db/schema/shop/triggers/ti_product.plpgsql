@@ -1,0 +1,15 @@
+create or replace
+function shop.ti_product() returns trigger as $$
+begin
+    new.sef_name := shop.get_new_sef_name(new.id, new.name);
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+
+alter function shop.ti_product() owner to shop;
+comment on function shop.ti_product() is 'Trigger to update sef_name before insert on product';
+
+create trigger ti_product before insert on shop.product
+    for each row execute procedure shop.ti_product();

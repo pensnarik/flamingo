@@ -1,0 +1,6 @@
+create or replace
+function core.auth(auser_id integer) returns void as $$
+    GD['user_id'] = auser_id
+$$ language plpythonu;
+
+alter function core.auth(integer) owner to shop;

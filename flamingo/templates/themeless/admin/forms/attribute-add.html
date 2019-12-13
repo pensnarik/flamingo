@@ -1,0 +1,51 @@
+<div class="modal fade" tabindex="-1" id="dlg-attribute-add" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Добавить атрибут</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form" role="form" id="attribute-form">
+                    <input type="hidden" name="sku" value="{{ product.sku }}">
+                    <div class="form-group">
+                        <label for="attribute_category" class="control-label">Группа</label>
+                        <input type="text" class="form-control" name="attribute_category">
+                    </div>
+                    <div class="form-group">
+                        <label for="attribute_name" class="control-label">Название</label>
+                        <input type="text" class="form-control" name="attribute_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="value" class="control-label">Значение</label>
+                        <input type="text" class="form-control" name="value">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-default" onclick="attributeValueAdd();">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+function attributeValueAdd() {
+    var attribute_category = $('input[name="attribute_category"]').val();
+    var attribute_name = $('input[name="attribute_name"]').val();
+    var value = $('input[name="value"]').val();
+
+    var data = {attribute_category: attribute_category, attribute_name: attribute_name,
+                value: value, sku: '{{ product.sku}}'};
+
+    $.post({url: '/admin/product/{{ product.id }}/attribute-value-set',
+            data: JSON.stringify(data),
+            contentType: 'application/json'}).done(function(data) {
+        $('#dlg-attribute-add').modal('hide');
+    });
+}
+
+</script>

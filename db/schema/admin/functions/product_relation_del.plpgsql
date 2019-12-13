@@ -1,0 +1,19 @@
+-- drop function admin.product_relation_del(integer);
+
+create or replace
+function admin.product_relation_del
+(
+    aid integer
+) returns integer as $$
+declare
+    vid integer;
+begin
+    delete from shop.product_relation where id = aid returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_relation_del(integer) owner to shop;
+
+comment on function admin.product_relation_del(integer) is 'Deletes a relations between products, by ID';

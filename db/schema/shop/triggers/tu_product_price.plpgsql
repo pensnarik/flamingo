@@ -1,0 +1,15 @@
+create or replace
+function shop.tu_product_price() returns trigger as $$
+begin
+    if new.price is distinct from old.price then
+        insert into stat.product_price_history (product_id, price)
+        values (new.id, new.price);
+    end if;
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger tu_product_price
+    after update of price on shop.product for each row execute procedure
+    shop.tu_product_price();

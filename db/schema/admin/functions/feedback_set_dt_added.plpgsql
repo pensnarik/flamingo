@@ -1,0 +1,22 @@
+create or replace
+function admin.feedback_set_dt_added
+(
+    aid integer,
+    adt_added timestamptz
+) returns timestamptz as $$
+declare
+    vresult timestamptz;
+begin
+    update shop.feedback
+       set dt_added = adt_added
+     where id = aid
+    returning dt_added into vresult;
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.feedback_set_dt_added(integer, timestamptz) owner to shop;
+
+comment on function admin.feedback_set_dt_added(integer, timestamptz)
+    is 'Updated feedback publish date (moderation function)';

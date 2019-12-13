@@ -1,0 +1,114 @@
+{% extends 'include/base.html' %}
+
+{% set title = product.name %}
+{% set path = '/' %}
+{% set meta_title = product.name %}
+{% set meta_description = 'Купить ' + product.name + ' с доставкой наложенным платежом' %}
+{% set meta_og_url = '/product/' + product.id|string %}
+{% set meta_og_image = product.image %}
+
+{% block content %}
+
+<h3 class="product-title">{{ product.name }}</h3>
+
+<div class="row text-center">
+    {% if product.image %}
+
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        {% for image in images %}
+        <li data-target="#carousel-example-generic" data-slide-to="{{ image.priority }}" {% if loop.first %}class="active"{% endif %}></li>
+        {% endfor %}
+      </ol>
+
+      <!-- Wrapper for slides -->
+      <div class="carousel-inner" role="listbox">
+        {% for image in images %}
+        <div class="item{% if loop.first %} active{% endif %}">
+          <img src="{{ image.url }}" alt="{{ product.name }}">
+          <div class="carousel-caption">{{ product.name }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- Controls -->
+      <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col col-md-10">
+        <table class="table">
+            <tr class="product-row">
+                <td style="width: 100px;">Артикул:</td>
+                <td>{{ product.sku }}</td>
+            </tr>
+            {% if config.ShowDollarPrice == 'True' %}
+            <tr class="product-row">
+                <td style="width: 100px;">Цена, $</td>
+                <td><strong>{{ product.price|int }}</strong></td>
+            </tr>
+            {% endif %}
+            <tr class="product-row">
+                <td style="width: 100px;">Цена, руб</td>
+                <td>
+                    <span class="price products-price">{{ product.price|int }} Р</span>
+                    {% if product.available > 0 %}
+                    <h4><span class="label label-success">В наличии</span></h4>
+                    {% else %}
+                    <h4><span class="label label-default">Нет в наличии</span></h4>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if product.description %}
+            <tr class="product-row">
+                <td style="width: 100px;">Описание:</td>
+                <td>{{ product.description }}</td>
+            </tr>
+            {% endif %}
+            {% if product.note %}
+            <tr class="product-row">
+                <td>Примечание:</td>
+                <td>{{ product.note }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <button class="btn ts-append" product-id="{{ product.id }}" {% if product.available == 0 %}disabled="disabled"{% endif %}>
+                    <img src="/static/image/shopping-cart.png">&nbsp; В корзину</button>
+                    <button class="btn ts-oneclick" product-id="{{ product.id }}" {% if product.available == 0 %}disabled="disabled"{% endif %}><img src="/static/image/buy.png">&nbsp; Купить в 1 клик!</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="product-info">
+{% for category in attribute_categories %}
+<h3 class="attribute-category-title">{{ category }}</h3>
+<table class="table table-striped">
+    {% for attribute in attributes %}
+    {% if attribute.category_name == category %}
+    <tr>
+        <td width="200px;">{{ attribute.name }}</td>
+        <td>{{ attribute.value }}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block script %}
+{% include 'include/product.js' %}
+{% endblock %}

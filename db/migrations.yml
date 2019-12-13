@@ -1,0 +1,1 @@
+conn: postgresql://migrator@/shop

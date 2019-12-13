@@ -1,0 +1,15 @@
+create or replace
+function web.gifts_get() returns table (
+    id integer,
+    name text
+) as $$
+begin
+    return query
+    select p.id, p.name
+      from shop.product p
+     where p.sku like 'gift-%'
+     order by p.sku;
+end;
+$$ language plpgsql security definer;
+
+alter function web.gifts_get() owner to shop;

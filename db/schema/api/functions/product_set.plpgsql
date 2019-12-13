@@ -1,0 +1,41 @@
+create or replace
+function api.product_set
+(
+    asku varchar,
+    aproduct json,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vresult integer;
+    vproduct_id integer := api.product_get(asku, acreate_if_not_exists);
+    vmanufacturer_id integer := api.manufacturer_get((aproduct->'product'->>'manufacturer')::text, acreate_if_not_exists);
+    vcategory_id integer := api.category_get((aproduct->'product'->>'categories')::text, acreate_if_not_exists);
+begin
+    if vproduct_id is null or vmanufacturer_id is null or vcategory_id is null then
+        return null;
+    end if;
+
+    perform admin.product_description_set(vproduct_id, (aproduct->'product'->>'description')::text);
+
+    update shop.product
+       set name = aproduct->'product'->>'name',
+           manufacturer_id = vmanufacturer_id,
+           gtin = aproduct->'product'->>'gtin'
+     where id = vproduct_id;
+
+    update shop.product_category
+       set category_id = vcategory_id
+     where product_id = vproduct_id;
+
+    if not found then
+        insert into shop.product_category (product_id, category_id)
+        values (vproduct_id, vcategory_id);
+    end if;
+
+    perform api.attributes_set(asku, aproduct->'product'->'attributes', acreate_if_not_exists);
+
+    return vproduct_id;
+end;
+$$ language plpgsql security definer;
+
+alter function api.product_set(varchar, json, boolean) owner to shop;

@@ -1,0 +1,46 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/translation' %}
+{% set title = 'Перевод' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/translation', 'name': 'Переводы'}] %}
+{% block content %}
+
+<div class="row">
+    <div class="col col-md-10">
+        <form action="/admin/translation" method="get">
+            <div class="input-group" style="margin-bottom: 10px;">
+                <input class="form-control" type="text" name="search" placeholder="Введите слово для поиска перевода" value="{% if search %}{{ search }}{% endif %}" />
+                <span class="input-group-btn">
+                    <button class="btn">Поиск</button>
+                </span>
+            </div>
+        </form>
+    </div>
+    <div class="col col-md-2 text-right">
+        <button id="btn-update-translations" type="button" class="btn btn-success">Обновить</button>
+    </div>
+</div><!-- row -->
+
+<table class="table table-hover">
+    <thead>
+        <th>Слово</th>
+        <th>Перевод</th>
+        <th>&nbsp;</th>
+        <th>Тип</th>
+    </thead>
+    {% for item in translations %}
+    <tr>
+        <td id="original-{{ item.id }}">{{ item.original }}</td>
+        <td id="translation-{{ item.id }}">{{ item.translation }}</td>
+        <td width="100">
+            <button type="button" class="btn btn-sm btn-translate" data-id="{{ item.id }}"><span class="glyphicon glyphicon-edit"></span></button>
+            {% if item.is_manual %}
+            <button type="button" class="btn btn-sm btn-danger" data-id="{{ item.id }}"><span class="glyphicon glyphicon-trash"></span></button>
+            {% endif %}
+        </td>
+        <td>{% if item.is_manual %}ручной{% else %}автоматический{% endif %}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

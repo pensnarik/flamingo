@@ -1,0 +1,29 @@
+create or replace
+function admin.product_description_set
+(
+    aproduct_id integer,
+    adescription text
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if adescription is null then
+        delete from shop.product_description where product_id = aproduct_id returning id into vid;
+    else
+        update shop.product_description
+           set description = adescription
+         where product_id = aproduct_id
+        returning id into vid;
+
+        if not found then
+            insert into shop.product_description (product_id, description)
+            values (aproduct_id, adescription)
+            returning id into vid;
+        end if;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_description_set(int, text) owner to shop;

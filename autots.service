@@ -1,0 +1,20 @@
+[Unit]
+Description=flamingo.parselab.ru
+After=multi-user.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=datatrace
+Group=datatrace
+SyslogIdentifier=datatrace-web
+ExecStart=/usr/local/bin/uwsgi -w flamingo:app --socket 127.0.0.1:9000
+RuntimeDirectory=uwsgi
+Restart=always
+KillSignal=SIGQUIT
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

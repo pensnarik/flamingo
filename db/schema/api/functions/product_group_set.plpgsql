@@ -1,0 +1,31 @@
+create or replace
+function api.product_group_set(aproduct_id integer, amemonic text, aname text) returns integer as $$
+declare
+    vgroup_id integer; vid integer;
+begin
+    select id into vgroup_id
+      from shop.product_group
+     where mnemonic = amemonic;
+
+    if vgroup_id is null then
+        insert into shop.product_group(mnemonic, name)
+        values (amemonic, aname)
+        returning id into vgroup_id;
+    end if;
+
+    select id into vid
+      from shop.products_in_group
+     where group_id = vgroup_id
+       and product_id = aproduct_id;
+
+    if vid is null then
+        insert into shop.products_in_group(product_id, group_id)
+        values (aproduct_id, vgroup_id)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function api.product_group_set(integer, text, text) owner to shop;

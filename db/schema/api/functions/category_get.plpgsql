@@ -1,0 +1,24 @@
+create or replace
+function api.category_get
+(
+    aname varchar,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vid integer := null;
+    vparent_id integer;
+    vname varchar;
+begin
+    raise notice '%', aname;
+    for vname in select name from unnest(string_to_array(aname, '->')) name
+    loop
+        raise notice '%, %', vname, vparent_id;
+        vid := api.category_id_get(vname, vparent_id);
+        vparent_id := vid;
+    end loop;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function api.category_get(varchar, boolean) owner to shop;

@@ -1,0 +1,6 @@
+create or replace
+function core.get_current_user() returns integer as $$
+    return GD.get('user_id')
+$$ language plpythonu stable security definer;
+
+alter function core.get_current_user() owner to shop;

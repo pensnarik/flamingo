@@ -1,0 +1,25 @@
+create or replace
+function web.get_order_for_customer
+(
+    aid integer,
+    asecret varchar
+) returns table (
+    id            integer,
+    dt_create     timestamptz,
+    amount        numeric,
+    email         varchar,
+    phone         varchar,
+    name          varchar,
+    address       varchar,
+    delivery_cost numeric(8,2),
+    token         char(32)
+) as $$
+begin
+    return query
+    select o.id, o.dt_create, o.amount,
+           o.email, o.phone, o.name, o.address, o.delivery_cost, o.token
+      from shop.customer_order o
+      join shop.customer c on c.id = o.customer_id
+     where o.id = aid and c.secret = asecret;
+end;
+$$ language plpgsql security definer stable;

@@ -1,0 +1,26 @@
+create or replace
+function web.set_payment_status
+(
+    aservice varchar,
+    aexternal_id varchar,
+    astatus shop.t_payment_status
+) returns shop.t_payment_status as $$
+declare
+    vstatus shop.t_payment_status;
+    vorder_id integer;
+begin
+    update shop.payment
+       set status = astatus,
+           dt_processed = now()
+     where service = aservice
+       and external_id = aexternal_id
+       and status = 'new'
+    returning status, order_id into vstatus, vorder_id;
+
+    update shop.customer_order
+       set status = 'paid'
+     where id = vorder_id;
+
+    return vstatus;
+end;
+$$ language plpgsql security definer;

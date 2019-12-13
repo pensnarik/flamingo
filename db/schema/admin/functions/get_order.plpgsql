@@ -1,0 +1,35 @@
+create or replace
+function admin.get_order
+(
+    aid integer
+) returns table (
+    id            integer,
+    customer_id   integer,
+    dt_create     timestamptz,
+    amount        numeric,
+    status        shop.t_order_status,
+    status_name   varchar,
+    email         varchar,
+    phone         varchar,
+    name          varchar,
+    ip            inet,
+    city          varchar,
+    address       varchar,
+    delivery_cost numeric(8,2),
+    subtotal      numeric,
+    total         numeric,
+    delivery_code varchar,
+    delivery_name varchar,
+    last_name     varchar,
+    patronymic_name varchar
+) as $$
+begin
+    return query
+    select o.id, o.customer_id, o.dt_create, o.amount, o.status, web.get_status_name(o.status),
+           o.email, o.phone, o.name, o.ip, o.city, o.address, o.delivery_cost,
+           o.amount, o.amount + o.delivery_cost, o.delivery_code, o.delivery_name,
+           o.last_name, o.patronymic_name
+      from shop.customer_order o
+     where o.id = aid;
+end;
+$$ language plpgsql security definer stable;

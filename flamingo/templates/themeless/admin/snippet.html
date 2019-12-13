@@ -1,0 +1,45 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/snippets' %}
+
+{% set title = 'Редактирование виджета' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/snippets', 'name': 'Виджеты'}, {'name': snippet.name if snippet.name else 'Новый виджет' }] %}
+
+{% block content %}
+<form action="/admin/snippet/{{ snippet.id }}" method="POST">
+
+    <input type="hidden" name="id" value="{{ snippet.id }}">
+
+    <div class="form-group">
+        <label for="name">Название</label>
+        <input type="text" class="form-control" value="{% if snippet.name %}{{ snippet.name }}{% endif %}" name="name">
+    </div>
+    <div class="form-group">
+        <label for="pos">Расположение</label>
+        <select name="pos" class="form-control">
+            <option value="head">Заголовок</option>
+            <option value="bottom">Внизу</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <div class="checkbox">
+            <label><input type="checkbox" name="is_enabled" value="true" {% if snippet.is_enabled %}checked="checked"{% endif %}>Активен</label>
+        </div>
+        <div class="checkbox">
+            <label><input type="checkbox" name="show_in_admin" value="true" {% if snippet.show_in_admin %}checked="checked"{% endif %}>Отображать в админке</label>
+        </div>
+
+    </div>
+    <div class="form-group">
+        <label for="priority">Порядок сортировки</label>
+        <input type="text" class="form-control" value="{% if snippet.priority %}{{ snippet.priority }}{% else %}0{% endif %}" name="priority">
+    </div>
+    <div class="form-group">
+        <label for="data">Код виджета</label>
+        <textarea style="font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif; font-size: 14px;" name="data" class="form-control" rows="15">{% if snippet.data %}{{ snippet.data|safe }}{% endif %}</textarea>
+    </div>
+
+    <button type="submit" class="form-control btn btn-primary">Сохранить</input>
+
+</form>
+{% endblock %}

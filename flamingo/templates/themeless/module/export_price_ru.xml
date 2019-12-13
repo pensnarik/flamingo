@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<priceru_feed date="{{ date }}">
+<shop>
+    <company>{{ config.CompanyName|safe }}</company>
+    <url>{{ config.BaseURL }}</url>
+    <currencies>
+        <currency id="RUB" rate="1"/>
+    </currencies>
+    <categories>
+        {% for category in categories -%}
+        <category id="{{ category.id }}" parentId="{{ category.parent_id }}">{{ category.name }}</category>
+        {% endfor -%}
+    </categories>
+    <offers>
+        {% for offer in offers -%}
+        <offer id="{{ offer.id }}" available="{% if offer.available > 0 %}true{% else %}false{% endif %}">
+            <name>{{ offer.name }}</name>
+            <description>{{ offer.description }}</description>
+            <url>{{ config.BaseURL }}{{ offer.url }}</url>
+            <picture>{{ config.BaseURL }}{{ offer.main_image }}</picture>
+            <price>{{ offer.price }}</price>
+            <oldprice>{% if offer.previous_price %}{{ offer.previous_price }}{% endif %}</oldprice>
+            <currencyId>RUB</currencyId>
+            <categoryId>{{ offer.category_id }}</categoryId>
+            <typePrefix></typePrefix>
+            <vendor>{{ offer.manufacturer_name }}</vendor>
+            <model>{{ offer.name }}</model>
+            <vendorCode>{{ offer.sku }}</vendorCode>
+            <local_delivery_cost></local_delivery_cost>
+        </offer>
+        {% endfor -%}
+    </offers>
+</shop>
+</priceru_feed>

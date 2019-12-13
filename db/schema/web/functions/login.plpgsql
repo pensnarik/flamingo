@@ -1,0 +1,24 @@
+create or replace
+function web.login
+(
+    alogin    varchar,
+    apassword varchar,
+    oid       out integer,
+    oname     out varchar,
+    oemail    out varchar,
+    ois_admin out boolean,
+    oerror    out varchar
+) returns record as $$
+begin
+    select id, name, email, is_admin
+      into oid, oname, oemail, ois_admin
+      from shop.system_user
+     where login = alogin
+       and password = apassword;
+
+    if not found then
+        select -1, 'Пользователь не найден'
+          into oid, oerror;
+    end if;
+end;
+$$ language plpgsql security definer;

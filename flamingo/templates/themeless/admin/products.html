@@ -1,0 +1,86 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/products' %}
+
+{% set title = 'Товары' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/products', 'name': 'Товары'}] %}
+
+{% block content %}
+
+{% include 'admin/search-product.html' %}
+
+{% for category, message in get_flashed_messages(with_categories=true) %}
+<div class="alert alert-{% if category == 'error' %}danger{% else %}success{% endif %}">{{ message }}</div>
+{% endfor %}
+
+<table class="table table-striped">
+    <thead>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th class="text-center">Наличие</th>
+        <th class="text-center">Цена пред.</th>
+        <th class="text-center">Цена</th>
+        <th>Действия</th>
+    </thead>
+    {% for product in products %}
+    <tr>
+        <td><a href="/admin/product/{{ product.id }}" target="_blank">{{ product.sku }}</a></td>
+        <td><a href="/admin/product/{{ product.id }}" target="_blank">{{ product.name }}</a></td>
+        <td>
+            <input id="input-available-{{ product.id }}" type="text" style="width: 80px" class="form-control text-right" value="{{ product.available }}">
+        </td>
+        <td><input id="input-previous-price-{{ product.id }}" type="text" style="width: 80px" class="form-control text-right" value="{{ product.previous_price|default('', true) }}"></td>
+        <td>
+            <input id="input-price-{{ product.id }}" type="text" style="width: 80px" class="form-control text-right" value="{{ product.price|default('', true) }}"></td>
+        <td>
+            <button type="button" class="btn btn-sm btn-default btn-update-product" data-product-id="{{ product.id }}">Сохранить</button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% macro get_url_for_page(page) %}
+{% if page < 1 or page > pages_count %}#{% else -%}
+/admin/products?name={{ request.args.get('name', '') }}&category_id={{ request.args.get('category_id', '') }}&page={{ page }}
+{%- endif %}
+{% endmacro %}
+
+<div class="row text-center">
+    <div class="col-md-4-offset-4">
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            <li{% if request.args.get('page', '1') == '1' %} class="disabled"{% endif %}>
+              <a href="{{ get_url_for_page(request.args.get('page', 1)|int - 1) }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% for page in range(1, pages_count + 1) %}
+                {% if page|string == request.args.get('page', '1') %}
+                    <li class="active"><a>{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{{ get_url_for_page(page) }}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            <li {% if request.args.get('page', '1')|int == pages_count %} class="disabled"{% endif %}>
+              <a href="{{ get_url_for_page(request.args.get('page', 1)|int + 1) }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.btn-update-product').click(function(e) {
+        var product_id = $(this).attr('data-product-id');
+        var price = $('#input-price-' + product_id).val();
+        var previous_price = $('#input-previous-price-' + product_id).val();
+        var available = $('#input-available-' + product_id).val();
+
+        setPrice(product_id, price, previous_price);
+        setAvailable(product_id, available);
+    });
+</script>
+
+{% endblock %}

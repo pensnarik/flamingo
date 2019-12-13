@@ -1,0 +1,53 @@
+{% extends 'admin/include/base.html' %}
+
+{% set title = 'Характиристики ' + product.name %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/categories', 'name': 'Товары'}, {'url': '/admin/product/' + product.id|string, 'name': product.name}, {'name': 'Характеритики'}] %}
+
+{% block content %}
+
+{% include 'admin/forms/attribute-add.html' %}
+
+<table class="table">
+{% for category in attribute_categories %}
+    <thead>
+        <tr>
+            <td colspan="2"><strong>{{ category.name }}</strong></td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attribute in attributes %}
+            {% if attribute.category_id == category.id %}
+            <tr>
+                <td width="300">{{ attribute.name }}</td>
+                <td>
+                    <form class="form-inline">
+                        <div class="form-group col-md-12">
+                            <input id="attribute-{{ attribute.id }}" type="text" class="form-control" value="{{ attribute.value }}" style="width: 80%">
+                            <button class="btn btn-primary" type="button" onclick="attributeValueSet('{{ product.sku }}', '{{ category.name }}', '{{ attribute.name }}', {{ attribute.id }});"><i class="glyphicon glyphicon-ok"></i></button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+{% endfor %}
+</table>
+
+<div class="tow text-right">
+    <button class="btn btn-primary" onclick="$('#dlg-attribute-add').modal();">Добавить</button>
+</div>
+
+<script type="text/javascript">
+    function attributeValueSet(sku, attribute_category, attribute_name, attribute_id) {
+        var data = {sku: sku, attribute_category: attribute_category, attribute_name: attribute_name,
+                    value: $('#attribute-' + attribute_id).val()};
+
+        $.post({url: '/admin/product/{{ product.id }}/attribute-value-set',
+                data: JSON.stringify(data), contentType: 'application/json'}).done(function(e) {
+                    alert('Изменения сохранены');
+                });
+    }
+</script>
+
+{% endblock %}

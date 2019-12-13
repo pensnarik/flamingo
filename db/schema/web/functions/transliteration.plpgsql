@@ -1,0 +1,15 @@
+create or replace
+function web.transliteration(atext text) returns text as $$
+declare
+    vfrom text[] := array['ъ', 'ь', 'щ', 'ё', 'ж', 'ц', 'ч', 'ш', 'ы', 'ю', 'я', 'а', 'б', 'в', 'г', 'д', 'е', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'э']::text[];
+    vto text[] := array['', '', 'sch', 'yo', 'zh', 'ts', 'ch', 'sh', 'yi', 'yu', 'ya', 'a', 'b', 'v', 'g', 'd', 'e', 'z', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'e']::text[];
+    vresult text;
+begin
+   select string_agg(coalesce(vto[array_position(vfrom, c)],c),'')
+     into vresult
+     from regexp_split_to_table(atext,'') g(c);
+   return vresult;
+end;
+$$ language plpgsql immutable;
+
+alter function web.transliteration(text) owner to shop;

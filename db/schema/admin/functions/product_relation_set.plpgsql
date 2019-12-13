@@ -1,0 +1,35 @@
+-- drop function admin.product_relation_set(integer, integer, varchar);
+
+create or replace
+function admin.product_relation_set
+(
+    aparent_id integer,
+    achild_id integer,
+    arelation varchar
+) returns integer as $$
+declare
+    vid integer; vrelation_id integer;
+begin
+    select id into vrelation_id from shop.relation where mnemonic = arelation;
+
+    if not found then
+        return -1;
+    end if;
+
+    select id into vid
+      from shop.product_relation
+     where parent_id = aparent_id
+       and child_id = achild_id
+       and relation_id = vrelation_id;
+
+    if not found then
+        insert into shop.product_relation (parent_id, child_id, relation_id)
+        values (aparent_id, achild_id, vrelation_id)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_relation_set(integer, integer, varchar) owner to shop;

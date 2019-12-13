@@ -1,0 +1,13 @@
+[uwsgi]
+env=PYTHONIOENCODING=utf-8
+env=LANG=en_US.UTF-8
+master=true
+workers=4
+chdir=/opt/flamingo
+pythonpath=/opt/flamingo
+socket=uwsgi.sock
+module=flamingo
+callable=app
+logto=/opt/flamingo/log/uwsgi.log
+touch-reload=/opt/flamingo/reload.ini
+plugins=python3

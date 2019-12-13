@@ -1,0 +1,19 @@
+create or replace
+function module.write_config(amodule varchar, aconfig json) returns integer as $$
+declare
+    vid integer;
+begin
+    update module.config
+       set config = aconfig
+     where module = amodule
+    returning id into vid;
+
+    if not found then
+        insert into module.config(module, config)
+        values (amodule, aconfig)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;

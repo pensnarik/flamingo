@@ -1,0 +1,39 @@
+<Ads formatVersion="3" target="Avito.ru">
+{% for offer in offers if offer.description %}
+    <Ad>
+        <Id>{{ offer.sku }}</Id>
+        <AllowEmail>Да</AllowEmail>
+        <ContactPhone>{{ contact_phone }}</ContactPhone>
+        <Region>Москва</Region>
+        <Category>Телефоны</Category>
+        <GoodsType>{{ offer.avito_category }}</GoodsType>
+        <Title>{{ offer.name }}</Title>
+        {% if offer.sku == 'nokia-001' %}
+        <Description><![CDATA[
+
+        {{ offer.name }}<br>
+        Стекло в подарок 🎁<br>
+        Чек, гарантия ✅<br>
+        Самовывоз 🚪<br>
+        Доставка по всей России! 🚗<br>
+        На авито с 2012 года! 🏅<br>
+
+        Звоните! 📞<br>
+        Пишите! 📩<br>
+        Мы работаем с 10:00 до 22:00 ежедневно! Пункт выдачи с 11:00 до 20:00.<br>
+
+        ]]>
+
+        </Description>
+        {% else %}
+        <Description>{{ offer.description }}</Description>
+        {% endif %}
+        <Price>{{ offer.price|int }}</Price>
+        <Images>
+            {% for image in offer.images %}
+            <Image url="{{ config.BaseURL}}{{ image.url}}" />
+            {% endfor %}
+        </Images>
+    </Ad>
+{% endfor %}
+</Ads>

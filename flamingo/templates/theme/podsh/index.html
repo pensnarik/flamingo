@@ -1,0 +1,28 @@
+{% extends 'include/base.html' %}
+
+{% block content %}
+
+    {% include 'include/search-dialog.html' %}
+
+    {% for category in categories -%}
+
+    {%- if loop.index0 % 4 == 0 %}
+<div class="row display-flex">
+    {%- endif %}
+    <div class="col-sm-12 col-xs-12 col-md-3 text-center category-thumbnail">
+        {% if False %}
+        <div class="thumbnail col-sm-12 col-xs-12" style="display: table; border-collapse: separate;">
+            <div class="thumbnail_wrapper" style="vertical-align: middle; display: table-cell;">
+                <a href="/category/{{ category.id }}"><img src="{{ category.image }}"></a>
+            </div>
+        </div>
+        {% endif %}
+        <h4 class="category-name"><small><span class="glyphicon glyphicon-menu-right" style="color: #e7e7e7;"></span></small>&nbsp;<a href="/category/{{ category.id }}">{{ category.name }}</a></h4>
+    </div>
+    {%- if loop.index0 % 4 == 3 or loop.last %}
+</div><!-- row -->
+    {%- endif -%}
+
+    {%- endfor -%}
+
+{% endblock %}

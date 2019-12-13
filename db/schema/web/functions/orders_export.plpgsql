@@ -1,0 +1,33 @@
+create or replace
+function web.orders_export
+(
+    pdays_limit integer default 1
+) returns setof json as $$
+begin
+    -- Exports orders for pdays_limit days or all orders if pdays_limit is null
+    --
+    return query
+    select row_to_json(t)
+      from (
+        select o.id as order_id,
+               o.dt_create,
+               o.amount,
+               o.email,
+               o.phone,
+               o.address,
+               o.delivery_cost,
+               o.delivery_name,
+               o.delivery_code,
+               o.name, o.last_name, o.patronymic_name,
+               o.ip as user_ip,
+               json_agg((select x from (select i.id, p.name, i.price, i.quantity, i.amount order by i.id) x)) as items
+          from shop.customer_order o
+          join shop.order_item i on i.order_id = o.id
+          join shop.product p on p.id = i.product_id
+         where o.dt_create >= current_timestamp - (interval '1 day') * (pdays_limit) or pdays_limit is null
+        group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+    ) t;
+end;
+$$ language plpgsql security definer stable;
+
+alter function web.orders_export(integer) owner to shop;

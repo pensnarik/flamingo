@@ -1,0 +1,83 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+    <head>
+        <link rel="icon" type="image/png" href="/static/image/favicon.png" />
+
+        <meta name="title" content="{{ meta_title}}" />
+        <meta name="description" content="{{ meta_description }}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta property="og:title" content="{{ meta_title }}" />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="{{ config.BaseURL }}{{ meta_og_url }}" />
+        <meta property="og:image" content="{{ config.BaseURL }}{{ meta_og_image }}" />
+
+        <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+        <script type="text/javascript" src="/static/js/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="/static/js/localization/messages_ru.js"></script>
+        <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+        {% for snippet in snippets if snippet.pos == 'head' %}{{ snippet.data| safe }}{% endfor %}
+        <script type="text/javascript" src="/static/js/flamingo.js?v={{ now }}"></script>
+
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css" type="text/css"/>
+        <link rel="stylesheet" href="/static/css/stylesheet.css?v={{ now }}" type="text/css"/>
+        <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="/static/css/flamingo.css" type="text/css"/>
+        {% block head_script %}
+        {% endblock %}
+        <title>{{ title }}</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row top-row" style="margin-bottom: 10px;">
+                <div class="col-md-3 hidden-xs">
+                    {% if config.LogoURL %}
+                    <a href="/"><img src="{{ config.LogoURL }}" style="margin-left: 30; margin-top: 10;" width="200"></a>
+                    {% endif %}
+
+                </div>
+                <div class="col-md-5 col-xs-12 col-upper-contact">
+                    <div class="upper-contact" style="text-align: center;">{{ config.HeaderText|safe }}</div>
+                </div>
+                <div class="col-md-2 col-md-offset-2 col-xs-12 col-upper-cart">
+                    <div class="upper-cart">
+                    <a href="/cart">
+                            <img src="/static/image/shopping-cart.png" style="margin-right: 10px;">
+                            <span class="cart-total-amount">{% if config.ShowDollarPrice == 'True' %}${% endif %}{{ cart.amount|int }}</span> (<span class="cart-total-count">{{ cart.quantity }}</span>)
+                    </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 visible-md visible-lg list-group">
+                {% block left_menu %}
+                    {% include 'include/menu.html' %}
+                {% endblock %}
+                </div>
+                <div class="col-md-9">
+                    {% block breadcrumbs %}{% include 'include/breadcrumbs.html' %}{% endblock %}
+                    <div class="row">
+                    {% block content %}
+                    {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div><!-- container -->
+        <footer>
+            <div class="row">
+                <div class="container type-footer-1">
+                    <div class="col-sm-3">
+                        <ul class="list-unstyled">
+                            <li><a href="tel:{{ config.Phone }}">{{ config.Phone }}</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </footer>
+    </body>
+{% block script %}
+{% endblock %}
+{% for snippet in snippets if snippet.pos == 'bottom' %}{{ snippet.data| safe }}{% endfor %}
+</html>

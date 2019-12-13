@@ -1,0 +1,23 @@
+create or replace
+function i18n.add_translation
+(
+    aoriginal text,
+    atranslation text
+) returns integer as $$
+declare
+    vid integer;
+begin
+    update i18n.translation_manual
+       set translation = atranslation,
+           dt_translated = now()
+     where original = aoriginal
+    returning id into vid;
+
+    if not found then
+        insert into i18n.translation_manual(original, translation, translator, dt_translated)
+        values (aoriginal, atranslation, 'manual', now());
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;

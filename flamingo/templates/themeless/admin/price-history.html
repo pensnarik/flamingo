@@ -1,0 +1,31 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/price-history' %}
+
+{% set title = 'История изменения цен' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/price_history', 'name': 'История изменения цен'}] %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <th>Дата</th>
+        <th>Товар</th>
+        <th>Старая цена</th>
+        <th>Новая цена</th>
+        <th>Пользователь</th>
+    </thead>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.dt_from.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td><a href="{{ row.product_url }}?force_visibility=true" target="_blank">{{ row.sku }}</a></td>
+        <td>{{ row.old_price|int }}</td>
+        <td>{{ row.new_price|int }}</td>
+        {% if row.user_name %}
+        <td>{{ row.user_name }}</td>
+        {% else %}
+        <td><span class="text-muted">нет</span></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

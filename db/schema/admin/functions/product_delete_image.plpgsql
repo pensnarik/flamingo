@@ -1,0 +1,21 @@
+drop function admin.product_delete_image(integer, integer);
+
+create or replace
+function admin.product_delete_image
+(
+    aproduct_id integer,
+    aid integer
+) returns varchar as $$
+declare
+    vid integer;
+begin
+    delete from shop.product_image where product_id = aproduct_id and id = aid
+    returning url into vresult;
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_delete_image(integer, integer) owner to shop;
+
+comment on function admin.product_delete_image(integer, integer) is 'Deletes images from databases and returns its URL';

@@ -1,0 +1,40 @@
+version: '2.1'
+
+networks:
+    shop:
+
+services:
+    postgres:
+        image: pensnarik/postgres-pgmigrate
+        environment:
+            PG_LOG_MIN_MESSAGES: 'info'
+            PG_LOG_MIN_DURATION_STATEMENT: '0'
+            POSTGRES_DB: shop
+            POSTGRES_USER: migrator
+        networks:
+            - shop
+        ports:
+            - '20000:5432'
+        volumes:
+            - ./db:/db
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U migrator shop"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    web:
+        environment:
+            FLAMINGO_THEME: 'comfortbuy'
+        build:
+            context: .
+            dockerfile: app.Dockerfile
+        restart: unless-stopped
+        networks:
+            - shop
+        ports:
+            - '80:80'
+        depends_on:
+            - "postgres"
+        healthcheck:
+            test: ["CMD-SHELL", "curl http://127.0.0.1"]

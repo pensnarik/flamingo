@@ -1,0 +1,19 @@
+create or replace
+function admin.set_delivery_cost
+(
+    aorder_id integer,
+    adelivery_cost numeric(8,2)
+) returns integer as $$
+declare
+    vid integer;
+begin
+    update shop.customer_order
+       set delivery_cost = adelivery_cost
+     where id = aorder_id
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.set_delivery_cost(integer, numeric) is 'Updates delivery cost for the order';

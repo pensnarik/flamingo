@@ -1,0 +1,66 @@
+{% extends 'include/base.html' %}
+
+{% block content %}
+
+<table class="table table-border table-striped">
+    <thead>
+        <th>#</th>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th class="text-right">Кол-во</th>
+        <th class="text-right">Цена</th>
+        <th class="text-right">Стоимость</th>
+        <th>&nbsp;</th>
+    </thead>
+{% for item in items %}
+    {% if item.id != -1 %}
+    <tr id="cart-item-{{ item.id }}">
+        <td>{{ loop.index }}</td>
+        <td><a href="{{ item.product_url }}" target="_blank">{{ item.sku }}</a></td>
+        <td>{{ item.name }}</td>
+        <td class="item-quantity text-right">{{ item.quantity }}</td>
+        <td class="item-price text-right">{{ item.price }}</td>
+        <td class="item-amount text-right">{{ item.amount }}</td>
+        <td>
+            <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-default btn-sm cart-action" data-product-id="{{ item.product_id }}" data-quantity="-1">-</button>
+                <button type="button" class="btn btn-default btn-sm cart-action" data-product-id="{{ item.product_id }}" data-quantity="1">+</button>
+            </div>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-danger btn-sm cart-remove" data-product-id="{{ item.product_id }}">Удалить</button>
+            </div>
+        </td>
+    </tr>
+    {% else %}
+    <tfoot>
+        <td>&nbsp;</td>
+        <td>Итого</td>
+        <td>&nbsp;</td>
+        <td class="cart-total-count text-right">{{ item.quantity }}</td>
+        <td>&nbsp;</td>
+        <td class="cart-total-amount text-right">{{ item.amount }}</td>
+        <td>&nbsp;</td>
+    </tfoot>
+    {% endif %}
+{% endfor %}
+</table>
+<div class="row">
+    <p class="text-center">
+        <a href="/order" type="button" class="btn btn-success">Оформить заказ</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block script %}
+
+<script type="text/javascript">
+$('.cart-action').click(function() {
+    updateCartItem($(this).attr('data-product-id'), $(this).attr('data-quantity'));
+});
+
+$('.cart-remove').click(function() {
+    removeProductFromCart($(this).attr('data-product-id'));
+})
+</script>
+{% endblock %}

@@ -1,0 +1,26 @@
+<form action="/admin/products" method="GET">
+<div class="input-group" style="margin-bottom: 10px;">
+    <input class="form-control" type="text" placeholder="Наименование или артикул" name="name" value="{% if name %}{{ name }}{% endif %}">
+    <span class="input-group-btn">
+        <button class="btn">Поиск</button>
+    </span>
+</div>
+<div class="form-group">
+    <label for="category_id">Категория</label>
+    <select name="category_id" class="form-control">
+        <option value="">Все</option>
+        {% for category in categories %}
+        <option value="{{ category.id }}" {% if request.args.get('category_id') == category.id|string %}selected="selected"{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('select[name="category_id"]').change(function() {
+        window.location = '/admin/products?name=' + encodeURIComponent($('input[name="name"]').val()) +
+                          '&category_id=' + encodeURIComponent($(this).val());
+    });
+});
+</script>

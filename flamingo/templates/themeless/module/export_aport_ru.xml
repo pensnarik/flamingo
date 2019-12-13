@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<price date="{{ date }}">
+<name>{{ config.CompanyName|safe }}</name>
+
+<catalog>
+    <categories>
+        {% for category in categories -%}
+        <category id="{{ category.id }}" {% if category.parent_id %}parentID="{{ category.parent_id }}"{% endif %}>{{ category.name }}</category>
+        {% endfor %}
+    </categories>
+</catalog>
+
+<items>
+    {% for offer in offers -%}
+    <item id="{{ offer.id }}">
+        <name>{{ offer.name }}</name>
+        <categoryId>{{ offer.category_id }}</categoryId>
+        <price>{{ offer.price }}</price>
+        <oldprice>{% if offer.previous_price %}{{ offer.previous_price }}{% endif %}</oldprice>
+        <url>{{ config.BaseURL }}{{ offer.url }}</url>
+        <image>{{ config.BaseURL }}{{ offer.main_image }}</image>
+        <vendor>{{ offer.manufacturer_name }}</vendor>
+        <description>{% if offer.description %}{{ offer.description }}{% endif %}</description>
+    </item>
+    {% endfor %}
+</items>
+</price>

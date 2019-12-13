@@ -1,0 +1,8 @@
+[db]
+dsn: postgresql://web:web@postgres/shop
+
+[module]
+dbconn: postgresql://module:module@postgres/shop
+
+[main]
+theme=<THEME>

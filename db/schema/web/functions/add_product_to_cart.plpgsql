@@ -1,0 +1,31 @@
+create or replace
+function web.add_product_to_cart
+(
+    acustomer_secret char(32),
+    aproduct_id      integer,
+    aquantity        smallint default 1,
+    oid              out integer,
+    ototal_count     out integer,
+    ototal_amount    out numeric
+) returns record as $$
+declare
+    vresult integer; vcustomer_id integer := shop.get_customer_id(acustomer_secret);
+begin
+    update shop.cart
+       set quantity = quantity + 1
+     where customer_id = vcustomer_id
+       and product_id = aproduct_id
+    returning id into oid;
+
+    if not found then
+        insert into shop.cart (customer_id, product_id, quantity)
+        values (vcustomer_id, aproduct_id, aquantity)
+        returning id into oid;
+    end if;
+
+    select sum(quantity)
+      into ototal_count
+      from shop.cart
+     where customer_id = vcustomer_id;
+end;
+$$ language plpgsql security definer;

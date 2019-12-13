@@ -1,0 +1,38 @@
+create or replace
+function i18n.update_translations() returns integer as $$
+declare
+    vresult integer := 0;
+    vtable_name varchar;
+    voriginal_column varchar; vtranslated_column varchar;
+    vsql text; vcount bigint;
+begin
+    vsql := $sql$
+    with translations as (
+        select coalesce(t.original, tm.original) as original,
+               coalesce(tm.translation, t.translation) as translation
+          from i18n.translation t
+          full outer join i18n.translation_manual tm using(original)
+    ), upd as (
+        update %1$s u
+           set %3$s = t.translation
+          from translations t
+         where u.%2$s = t.original
+           and u.%3$s is distinct from t.translation
+        returning *
+    ) select count(*) from upd;
+    $sql$;
+
+    for vtable_name, voriginal_column, vtranslated_column in
+        (select table_name, original_column, translated_column from i18n.translation_column) loop
+
+        vsql := format(vsql, vtable_name, voriginal_column, vtranslated_column);
+
+        execute vsql into vcount;
+        vresult := vresult + vcount;
+    end loop;
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+comment on function i18n.update_translations() is 'Translates all columns in database; returns counts of rows affected';

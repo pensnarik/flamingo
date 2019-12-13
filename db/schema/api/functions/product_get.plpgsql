@@ -1,0 +1,22 @@
+create or replace
+function api.product_get
+(
+    asku varchar,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vid integer;
+begin
+    select id into vid from shop.product where sku = asku;
+
+    if vid is null and acreate_if_not_exists then
+        insert into shop.product (sku, name)
+        values (asku, asku)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function api.product_get(varchar, boolean) owner to shop;

@@ -1,0 +1,10 @@
+create or replace
+function web.category_has_childs(acategory_id integer) returns boolean as $$
+begin
+    return (select exists (select * from shop.category where parent_id = acategory_id));
+end;
+$$ language plpgsql security definer;
+
+comment on function web.category_has_childs(integer) is 'Whether category has childs';
+
+alter function web.category_has_childs(integer) owner to shop;

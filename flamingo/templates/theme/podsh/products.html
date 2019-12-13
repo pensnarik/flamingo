@@ -1,0 +1,85 @@
+{% extends 'include/base.html' %}
+
+{% set path = '/' %}
+{% set title = config.Title + ' ' + category.name %}
+
+{% block content %}
+    {% include 'include/search-dialog.html' %}
+
+    <div class="col col-md-12">
+
+    {% for product in products -%}
+
+<div class="row" style="border-bottom: #ddd 1px solid; margin-bottom: 20px;">
+
+    <h4 id="product-{{ product.id}}-title" class="product-title">
+        <a href="{{ product.url }}">{{ product.name }}</a>
+    </h4>
+
+    <div class="product-image col-md-4 col-xs-12">
+        {% if product.image %}
+        <div class="thumbnail" style="display: table; border-collapse: separate;">
+            <a href="{{ product.url }}"><img src="{{ product.image }}" width="200"  ></a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="product-info col-md-8 col-xs-12">
+        <table>
+            <tr class="text-muted product-row">
+                <td class="product-card">Артикул:</td>
+                <td>{{ product.sku }}</td>
+            </tr>
+        </table>
+        <table>
+            {% if config.ShowDollarPrice == 'True' %}
+            <tr class="product-row">
+                <td class="product-card">Цена, $</td>
+                <td><strong>{{ product.price|int }}</strong></td>
+            </tr>
+            {% endif %}
+            <tr class="product-row">
+                <td class="product-card">Цена, руб</td>
+                <td><span class="price products-price">{{ product.price|int }} Р</span></td>
+            </tr>
+        </table>
+        <table>
+            {% for attribute in product.card_attributes %}
+            <tr class="product-row">
+                <td class="product-card">{{ attribute.name }}</td>
+                <td>{{ attribute.value }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <table>
+        {% if product.description %}
+        <tr class="product-row">
+            <td class="product-card">Описание:</td>
+            <td>см. характеристики</td>
+        </tr>
+        {% endif %}
+        {% if product.note %}
+        <tr class="product-row">
+            <td>Примечание:</td>
+            <td>{{ product.note }}</td>
+        </tr>
+        {% endif %}
+        </table>
+        <p style="margin-top: 10px;">
+            {% if product.diagram %}
+            <a href="/diagram/{{ product.vehicle_id}}/{{ product.diagram }}?lookup_no={{ product.lookup_no }}&category_id={{ category_id }}" target="_blank">Посмотреть на диаграмме</a>
+            {% endif %}
+        </p>
+        <div style="margin-left: 10px; margin-bottom: 10px;">
+            <button class="btn ts-append" product-id="{{ product.id }}"><img src="/static/image/shopping-cart.png">&nbsp; В корзину</button>
+            <button class="btn ts-oneclick" product-id="{{ product.id }}"><img src="/static/image/buy.png">&nbsp; Купить в 1 клик!</button>
+        </div>
+    </div>
+</div><!-- row -->
+
+{%- endfor -%}
+    </div>
+{% endblock %}
+
+{% block script %}
+{% include 'include/product.js' %}
+{% endblock %}

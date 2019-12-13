@@ -1,0 +1,30 @@
+create or replace
+function api.product_image_set
+(
+    asku varchar,
+    aurl varchar,
+    apriority integer
+) returns integer as $$
+declare
+    vproduct_id integer := api.product_get(asku, false);
+    vresult integer;
+begin
+    if vproduct_id is null then
+        return 0;
+    end if;
+
+    update shop.product_image
+       set priority = apriority
+     where product_id = vproduct_id
+       and url = aurl;
+
+    if not found then
+        insert into shop.product_image(product_id, url, priority)
+        values (vproduct_id, aurl, apriority);
+    end if;
+
+    return 1;
+end;
+$$ language plpgsql security definer;
+
+alter function api.product_image_set(varchar, varchar, integer) owner to shop;

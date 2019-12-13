@@ -1,0 +1,28 @@
+create or replace
+function shop.tau_category() returns trigger as $$
+declare
+    vids integer[];
+begin
+    /*
+        Updates product paths when category parent_id changed
+    */
+    if new.parent_id is distinct from old.parent_id then
+
+        select array_agg(n)
+          into vids
+          from (select unnest(array[old.parent_id, new.parent_id, new.id]) n) t
+         where n is not null;
+
+        update shop.product p
+           set path = web.product_path_get(p.id)
+         where p.path && vids;
+    end if;
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+alter function shop.tau_category() owner to shop;
+
+create trigger tau_category after update of parent_id on shop.category
+    for each row execute procedure shop.tau_category();

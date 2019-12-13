@@ -1,0 +1,21 @@
+create or replace
+function admin.product_del(aid integer) returns integer as $$
+declare
+    vid integer;
+begin
+    perform admin.product_description_set(aid, null);
+    perform admin.product_category_set(aid, null);
+
+    delete from shop.product_image where product_id = aid;
+    delete from shop.attribute_value where product_id = aid;
+    delete from stat.product_stat where product_id = aid;
+    delete from module.module_product where product_id = aid;
+    delete from shop.product where id = aid returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_del(int) owner to shop;
+
+comment on function admin.product_del(int) is 'Deletes a product, its category and description';

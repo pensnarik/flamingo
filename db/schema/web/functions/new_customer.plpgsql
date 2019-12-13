@@ -1,0 +1,7 @@
+create or replace
+function web.new_customer(oid out integer, osecret out char(32)) returns record as $$
+begin
+    insert into shop.customer default values
+    returning id, secret into oid, osecret;
+end;
+$$ language plpgsql security definer;

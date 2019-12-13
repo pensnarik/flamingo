@@ -1,0 +1,60 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/banner' %}
+
+{% set title = 'Баннер' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/banners', 'name': 'Баннеры'}] %}
+
+{% block content %}
+
+<form>
+
+<div class="form-group">
+    <label for="title">Заголовок</label>
+    <input class="form-control" name="title" type="text" value="{{ banner.title }}">
+</div>
+
+<div class="form-group">
+    <label for="priority">Порядок сортировки</label>
+    <input class="form-control" name="priority" type="text" value="{{ banner.priority }}">
+</div>
+
+<div class="form-group">
+    <label for="href">Ссылка</label>
+    <input class="form-control" name="href" type="text" value="{{ banner.href }}">
+</div>
+
+<div class="form-group">
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" {% if banner.is_visible %}checked="checked"{% endif %}>Отображать на главной странице
+        </label>
+    </div>
+</div>
+
+<button type="submit" action="/admin/banner/{{ banner.id }}" class="btn btn-primary">Сохранить</button>
+
+</form>
+
+<div class="form-group">
+<label for="image">Изображение</label>
+<input class="form-control" type="text" name="image_url" value="{{ banner.image_url }}">
+</div>
+
+<div class="thumbnail">
+    <img src="{{ banner.image_url }}">
+</div>
+
+<form action="/admin/banner/{{ banner.id }}/upload" method="POST" enctype="multipart/form-data">
+
+    <div class="form-group">
+        <label for="file">Загрузить новое изображение</label>
+        <input type="file" id="file" name="file">
+        <p class="help-block">Выберите изображение для загрузки.</p>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Загрузить</button>
+
+</form>
+
+{% endblock %}

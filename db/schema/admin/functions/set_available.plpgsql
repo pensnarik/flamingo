@@ -1,0 +1,19 @@
+create or replace
+function admin.set_available
+(
+    aproduct_id integer,
+    aavailable numeric
+) returns integer as $$
+declare
+    vid integer;
+begin
+    update shop.product
+       set available = aavailable
+     where id = aproduct_id
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.set_available(integer, numeric) is 'Updates product available';

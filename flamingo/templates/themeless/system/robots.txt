@@ -1,0 +1,11 @@
+User-Agent: *
+{% if config.NoIndex == 'True' %}
+Disallow: /
+{% else %}
+Disallow: /order
+Disallow: /cart
+Disallow: /admin
+{% endif %}
+
+Disallow: /info/*
+Host: {{ config.BaseURL }}

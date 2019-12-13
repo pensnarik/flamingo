@@ -1,0 +1,19 @@
+create or replace
+function api.category_update_image
+(
+    acategory_id integer,
+    aimage       text
+) returns integer as $$
+declare
+    vid integer;
+begin
+    update shop.category set image = aimage where id = acategory_id
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function api.category_update_image(integer, text) is 'Updated image path for category with ID = acategory_id';
+
+alter function api.category_update_image(integer, text) owner to shop;

@@ -1,0 +1,11 @@
+*.pyc
+flamingo/static/image/diagram/*
+flamingo/static/image/product/*
+flamingo.config
+db/data/module/
+db/data/shop/feedback.sql
+db/data/shop/system_user.sql
+example-unicode.xml
+example.xml
+flamingo/static/image/banners/*
+flamingo/static/image/dogphone*

@@ -1,0 +1,26 @@
+create or replace
+function api.set_available_bulk(adata json) returns table
+(
+    asku       varchar,
+    aavailable integer
+) as $$
+declare
+    vsku varchar; vavailable integer; vnew_value integer;
+begin
+    for vsku, vavailable in
+    (
+        select sku, available
+          from json_to_recordset(adata)
+            as r (sku varchar, available integer)
+    ) loop
+        update shop.product
+           set available = vavailable
+         where sku = vsku
+        returning available into aavailable;
+        asku := vsku;
+        return next;
+    end loop;
+end;
+$$ language plpgsql security definer;
+
+alter function api.set_available_bulk(json) owner to shop;

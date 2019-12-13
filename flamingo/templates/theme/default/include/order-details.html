@@ -1,0 +1,122 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h4>Статус заказа: <span class="label label-default">{{ order.status_name }}</label></h4>
+        <div class="form-group">
+
+            <div class="row">
+                <div class="col-md-4 col-xs-12">
+                    <label for="last_name" class="control-label">Фамилия</label>
+                    <input readonly="readonly" type="text" class="form-control" name="last_name" value="{{ order.last_name }}">
+                </div>
+                <div class="col-md-4 col-xs-12">
+                    <label for="name" class="control-label">Имя</label>
+                    <input readonly="readonly" type="text" class="form-control" name="name" value="{{ order.name }}">
+                </div>
+                <div class="col-md-4 col-xs-12">
+                    <label for="patronymic_name" class="control-label">Отчество</label>
+                    <input readonly="readonly" type="text" class="form-control" name="patronymic_name" value="{{ order.patronymic_name }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for="email" class="control-label">e-mail</label>
+                    <input readonly="readonly" type="text" class="form-control" name="email" value="{{ order.email }}">
+                </div>
+                <div class="col-xs-4">
+                    <label for="phone" class="control-label">Телефон</label>
+                    <input readonly="readonly" type="text" class="form-control" name="phone" value="{{ order.phone }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-4">
+                    <label for="city" class="control-label">Город</label>
+                    <input readonly="readonly" type="text" class="form-control" name="city" value="{{ order.city }}">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-12">
+                    <label for="address" class="control-label">Адрес доставки</label>
+                    <input readonly="readonly" type="text" class="form-control" name="address" value="{{ order.address }}">
+                </div>
+            </div>
+        </div>
+        {% if is_admin %}
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-12">
+                    <label for="comentary" class="control-label">Комментарий менеджера к заказу</label>
+                    <textarea class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="form-group">
+            <div class="row">
+                {% if is_admin %}
+                <div class="col-xs-4">
+                    <label for="delivery_cost" class="control-label">Стоимость доставки</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="delivery_cost" value="{{ order.delivery_cost }}">
+                        <div class="input-group-btn">
+                            <button id="btn-update-delivery-cost" data-order-id="{{ order.id }}" type="button" class="btn btn-default">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-md-4 col-xs-12">
+                    <label for="delivery_cost" class="control-label">Стоимость доставки</label>
+                    <input readonly="readonly" type="text" class="form-control" name="delivery_cost" value="{{ order.delivery_cost }}">
+                </div>
+                {% endif %}
+                <div class="col-md-8 col-xs-12">
+                    <label for="delivery_name" class="control-label">Способ доставки</label>
+                    <input readonly="readonly" type="text" class="form-control" name="delivery_name" value="{{ order.delivery_name }}">
+                </div>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <th>#</th>
+                <th>Артикул</th>
+                <th>Цена</th>
+                <th>Кол-во</th>
+                <th>Стоимость</th>
+            </thead>
+        {% for item in items %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><a href="/product/{{ item.product_id }}" target="_bank">{{ item.product_sku }}</a></td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.amount }}
+            </tr>
+        {% endfor %}
+        </table>
+        <h4>Сумма к оплате: {{ order.amount + order.delivery_cost }}</h4>
+        <div class="form-group">
+            <div class="row text-center">
+                <div class="col-xs-12">
+                    {% if is_admin %}
+                        {% if order.status == 'new' %}
+                            <button id="btn-confirm-order" data-order-id="{{ order.id }}" type="submit" class="btn btn-default">Подтвердить заказ</button>
+                        {% endif %}
+                    <button type="submit" class="btn btn-danger">Отменить заказ</button>
+                    {% else %}
+                        {% if order.status == 'confirmed' %}
+                            <a href="/payment?order_id={{ order.id }}&token={{ order.token }}"><button type="submit" class="btn btn-success">Оплатить заказ</button></a>
+                        {% elif order.status == 'new' %}
+                            <div style="margin-bottom: 10px;"><button type="submit" disabled="disabled" class="btn btn-success">Оплатить заказ</button></div>
+                            <div class="alert alert-danger"><strong>Внимание!</strong> Для того, чтобы вы могли оплатить заказ, ваш менеджер должен рассчитать стоимость доставки и подтвердить его.</div>
+                        {% endif %}
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

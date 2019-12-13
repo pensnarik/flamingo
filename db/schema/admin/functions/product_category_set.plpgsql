@@ -1,0 +1,27 @@
+create or replace
+function admin.product_category_set
+(
+    aproduct_id integer,
+    acategory_id integer
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if acategory_id is null then
+        delete from shop.product_category where product_id = aproduct_id returning id into vid;
+    else
+        update shop.product_category set category_id = acategory_id where product_id = aproduct_id
+        returning id into vid;
+
+        if not found then
+            insert into shop.product_category(product_id, category_id)
+            values (aproduct_id, acategory_id)
+            returning id into vid;
+        end if;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_category_set(int, int) owner to shop;

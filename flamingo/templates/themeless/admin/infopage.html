@@ -1,0 +1,29 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/infopages' %}
+
+{% set title = 'Редактирование страницы' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/infopages', 'name': 'Страницы'}] %}
+
+{% block content %}
+<form action="/admin/infopage/{{ page.id }}" method="POST">
+
+<input type="hidden" name="id" value="{{ page.id }}">
+<div class="form-group">
+    <div class="row">
+    <div class="col-md-8">
+        <input type="text" class="form-control" value="{{ page.url }}" name="url">
+    </div>
+    <div class="col-md-4">
+        <a class="btn btn-success" href="/info/{{ page.url }}" target="_blank">Предпросмотр&nbsp;&nbsp;<span class="glyphicon glyphicon-flash"></span></a>
+    </div>
+</div>
+</div>
+<div class="form-group">
+    <textarea style="font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif; font-size: 14px;" name="code" class="form-control" rows="30">{% if page.code %}{{ page.code|safe }}{% endif %}</textarea>
+</div>
+
+<button type="submit" class="form-control">Сохранить</input>
+
+</form>
+{% endblock %}

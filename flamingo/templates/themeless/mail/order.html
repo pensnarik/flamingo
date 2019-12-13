@@ -1,0 +1,10 @@
+<h3>Благодарим за заказ {{ order.id }}!</h3>
+
+<p>Сумма вашего заказа: <strong>{{ order.total|int }} рублей</strong> ({% if order.delivery_cost > 0 %}включая стоимость доставки <strong>{{ order.delivery_cost|int }} рублей</strong>{% else %}стоимость доставки не включена{% endif %}). Наш менеджер свяжется с вами в ближайшее время для уточнения стоимости и условий доставки.</p>
+
+<p>Способ доставки: {{ order.delivery_name }}</p>
+<p>Способ оплаты: {{ order.payment_method_name }}</p>
+
+<p>Список позиций заказа:</p>
+
+{% include 'mail/order-details.html' %}

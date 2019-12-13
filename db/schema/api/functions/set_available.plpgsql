@@ -1,0 +1,16 @@
+create or replace
+function api.set_available(asku varchar, aavailable integer) returns integer as $$
+begin
+    update shop.product
+       set available = aavailable
+     where sku = asku;
+
+    if found then
+        return 1;
+    else
+        return 0;
+    end if;
+end;
+$$ language plpgsql security definer;
+
+alter function api.set_available(varchar, integer) owner to shop;

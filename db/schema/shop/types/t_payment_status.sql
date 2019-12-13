@@ -1,0 +1,1 @@
+create type shop.t_payment_status as enum ('new', 'success', 'error');

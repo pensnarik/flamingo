@@ -1,0 +1,27 @@
+create or replace
+function web.attribute_categories_get(afor_attr integer[] default null) returns table
+(
+    id integer,
+    name varchar
+) as $$
+begin
+    if afor_attr is null then
+        return query
+        select c.id, c.name::varchar
+          from shop.attribute_category c
+         order by c.priority;
+    else
+        return query
+        select c.id, c.name::varchar
+          from shop.attribute_category c
+         where exists (
+          select *
+            from shop.attribute a
+           where a.id = any(afor_attr) and a.attribute_category_id = c.id
+         )
+         order by c.priority;
+    end if;
+end;
+$$ language plpgsql security definer stable;
+
+alter function web.attribute_categories_get(integer[]) owner to shop;

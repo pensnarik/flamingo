@@ -1,0 +1,38 @@
+create or replace
+function web.set_cart_item
+(
+    acustomer_key char(32),
+    aproduct_id integer,
+    aquantity integer
+) returns table
+(
+    id          integer,
+    product_id  integer,
+    quantity    smallint,
+    price       numeric,
+    amount      numeric
+) as $$
+declare
+    vcustomer_id integer := shop.get_customer_id(acustomer_key);
+    vcart_id integer;
+begin
+    update shop.cart c
+       set quantity = aquantity
+     where c.customer_id = vcustomer_id
+       and c.product_id = aproduct_id
+    returning c.id into vcart_id;
+
+    return query
+    select c.id, c.product_id, c.quantity, p.price, round(c.quantity * p.price, 2)
+      from shop.cart c
+      join shop.product p
+        on p.id = c.product_id
+     where c.id = vcart_id
+    union all
+    select -1, null, oquantity, null, oamount from web.get_cart_total(acustomer_key);
+end;
+$$ language plpgsql security definer;
+
+comment on function web.set_cart_item(char(32), integer, integer) is 'Set product quantity in cart to <aquantity>';
+
+alter function web.set_cart_item(char(32), integer, integer) owner to shop;

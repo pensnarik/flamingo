@@ -1,0 +1,38 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/banners' %}
+
+{% set title = 'Баннеры' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/banners', 'name': 'Баннеры'}] %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <th>ID</th>
+        <th>Ссылка</th>
+        <th>Заголовок</th>
+    </thead>
+    {% for banner in banners %}
+    <tr>
+        <td>{{ banner.id }}</td>
+        <td>{{ banner.href }}</td>
+        <td>{{ banner.title }}</td>
+        <td>
+            <a type="button" href="/admin/banner/{{ banner.id}}" class="btn btn-warning">Редактировать</a>
+            <button type="button" class="btn btn-danger" onclick="deletePage({{ banner.id }});">Удалить</button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<div class="row text-right">
+    <a href="/admin/banner" type="button" class="btn btn-success">Добавить</a>
+</div>
+
+<script type="text/javascript">
+    function deletePage(id) {
+        $.post({url: '/admin/banner/' + id + '/delete'}).done(function(data) {
+            window.location.reload();
+        });
+    }
+</script>
+{% endblock %}

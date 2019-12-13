@@ -1,0 +1,10 @@
+{% set current_path = '/admin' %}
+
+{% extends 'admin/include/base.html' %}
+
+{% set title = 'Панель администратора' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель адмнистратора'}] %}
+
+{% block content %}
+Здесь будет важная информация для администраторов и менеджеров, а также статистика.
+{% endblock %}

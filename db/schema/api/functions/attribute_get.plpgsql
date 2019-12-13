@@ -1,0 +1,31 @@
+-- drop function api.attribute_get(integer, varchar, integer, varchar, boolean);
+
+create or replace
+function api.attribute_get
+(
+    aattribute_category_id integer,
+    aname varchar,
+    apriority integer,
+    adescription varchar,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vid integer;
+begin
+    select id
+      into vid
+      from shop.attribute
+     where name = aname
+       and attribute_category_id is not distinct from aattribute_category_id;
+
+    if vid is null and acreate_if_not_exists then
+        insert into shop.attribute(name, attribute_category_id, priority, description)
+        values (aname, aattribute_category_id, coalesce(apriority, 0), adescription)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function api.attribute_get(integer, varchar, integer, varchar, boolean) owner to shop;

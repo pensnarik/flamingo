@@ -1,0 +1,13 @@
+create or replace
+function shop.tbu_product() returns trigger as $$
+begin
+    new.update_user_id := core.get_current_user();
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+alter function shop.tbu_product() owner to shop;
+
+create trigger tbu_product before update on shop.product
+    for each row execute procedure shop.tbu_product();

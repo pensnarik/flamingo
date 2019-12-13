@@ -1,0 +1,39 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/snippets' %}
+
+{% set title = 'Виджеты' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/snippets', 'name': 'Виджеты'}] %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Активен?</th>
+        <th>Действия</th>
+    </thead>
+    {% for snippet in snippets %}
+    <tr>
+        <td>{{ snippet.id }}</td>
+        <td>{{ snippet.name }}</td>
+        <td>{{ snippet.is_visible }}</td>
+        <td>
+            <a type="button" href="/admin/snippet/{{ snippet.id}}" class="btn btn-warning">Редактировать</a>
+            <button type="button" class="btn btn-danger" onclick="deletesnippet({{ snippet.id }});">Удалить</button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<div class="row text-right">
+    <a href="/admin/snippet" type="button" class="btn btn-success">Добавить</a>
+</div>
+
+<script type="text/javascript">
+    function deletesnippet(id) {
+        $.post({url: '/admin/snippet/' + id + '/delete'}).done(function(data) {
+            window.location.reload();
+        });
+    }
+</script>
+{% endblock %}

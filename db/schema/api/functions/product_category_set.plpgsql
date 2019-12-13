@@ -1,0 +1,36 @@
+create or replace
+function admin.product_category_set
+(
+    asku varchar,
+    acategory varchar
+) returns integer as $$
+declare
+    vproduct_id integer; vcategory_id integer;
+    vnew_category_id integer;
+begin
+    select id into vproduct_id from shop.product where sku = asku;
+    select id into vcategory_id from shop.category where name = acategory;
+
+    if vproduct_id is null or vcategory_id is null then
+        return -1;
+    end if;
+
+    update shop.product_category
+       set category_id = vcategory_id
+     where product_id = vproduct_id
+    returning category_id into vnew_category_id;
+
+    if not found then
+        insert into shop.product_category (product_id, category_id)
+        values (vproduct_id, vcategory_id)
+        returning category_id into vnew_category_id;
+    end if;
+
+    return vnew_category_id;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.product_category_set(varchar, varchar) owner to shop;
+
+comment on function admin.product_category_set(varchar, varchar) is 'Updates product category';
+

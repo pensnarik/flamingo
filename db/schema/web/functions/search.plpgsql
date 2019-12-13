@@ -1,0 +1,22 @@
+create or replace
+function web.search
+(
+    asearch varchar
+) returns table
+(
+    product_id integer,
+    name varchar,
+    sku varchar,
+    price numeric(8,2)
+) as $$
+begin
+    return query
+    select p.id, p.name::varchar, p.sku::varchar, p.price
+      from shop.product p
+     where (p.sku = asearch or asearch is null)
+        or (lower(p.name) like '%' || lower(asearch) || '%')
+    order by p.id limit 20;
+end;
+$$ language plpgsql security definer stable;
+
+comment on function web.search(varchar) is 'Search';

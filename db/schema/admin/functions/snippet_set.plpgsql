@@ -1,0 +1,35 @@
+create or replace
+function admin.snippet_set
+(
+    aid integer,
+    aname varchar,
+    apos varchar,
+    apriority integer,
+    ais_enabled boolean,
+    adata text,
+    ashow_in_admin boolean
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if aid is null then
+        insert into shop.snippet(name, pos, priority, is_enabled, data, show_in_admin)
+        values (aname, apos, apriority, ais_enabled, adata, ashow_in_admin)
+        returning id into vid;
+    else
+        update shop.snippet
+           set name = aname,
+               pos = apos,
+               priority = apriority,
+               is_enabled = ais_enabled,
+               data = adata,
+               show_in_admin = ashow_in_admin
+         where id = aid
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.snippet_set(integer, varchar, varchar, integer, boolean, text, boolean) owner to shop;

@@ -1,0 +1,39 @@
+create or replace
+function web.create_fast_order
+(
+    aproduct_id integer,
+    aemail      text,
+    aphone      text,
+    aip         inet
+) returns integer as $$
+declare
+    vcustomer_id integer; vorder_id integer;
+    vamount numeric;
+begin
+    /*
+       We do not need add product to cart while processing fast order, but we need
+       to create fake customer
+    */
+    insert into shop.customer (secret) values (default)
+    returning id into vcustomer_id;
+
+    insert into shop.customer_order (customer_id, email, phone, name, city, address, ip)
+    values (vcustomer_id, aemail, aphone, 'Лидогенератор', 'не указан', 'не указан', aip)
+    returning id into vorder_id;
+
+    insert into shop.order_item (order_id, product_id, price, quantity, amount)
+    select vorder_id, aproduct_id, p.price, 1, p.price
+    from shop.product p where p.id = aproduct_id
+    returning amount into vamount;
+
+    if not found then
+        raise exception 'Product % not found', aproduct_id;
+    end if;
+
+    update shop.customer_order set amount = vamount where id = vorder_id;
+
+    return vorder_id;
+end;
+$$ language plpgsql security definer;
+
+comment on function web.create_fast_order(integer, text, text, inet) is 'Creates fast order ignoring adding products to cart; creates new fake customer implicitly';

@@ -1,0 +1,10 @@
+{% extends 'admin/include/base.html' %}
+{% set current_path = '/admin/orders' %}
+
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/orders', 'name': 'Заказы'}, {'name': 'Заказ ' + order.id|string}] %}
+
+{% set title = 'Заказ #' + order.id|string %}
+
+{% block content %}
+{% include 'include/order-details.html' %}
+{% endblock %}

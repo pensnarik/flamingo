@@ -1,0 +1,52 @@
+-- drop function admin.product_set (integer, text, text, numeric, integer, boolean, integer, integer, varchar, numeric, varchar, varchar);
+
+create or replace
+function admin.product_set
+(
+    aid integer,
+    aname text,
+    adescription text,
+    aprice numeric,
+    aavailable integer,
+    ais_visible boolean,
+    acategory_id integer,
+    amanufactirer_id integer,
+    asku varchar,
+    aprevious_price numeric,
+    asef_name varchar,
+    agtin varchar
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if aid is null then
+        insert into shop.product(name, price, available, is_visible, manufacturer_id, sku, previous_price,
+            sef_name, gtin)
+        values (aname, aprice, aavailable, ais_visible, amanufactirer_id, asku, aprevious_price,
+            asef_name, agtin)
+        returning id into vid;
+    else
+        update shop.product
+           set name = aname,
+               price = aprice,
+               available = aavailable,
+               is_visible = ais_visible,
+               manufacturer_id = amanufactirer_id,
+               previous_price = aprevious_price,
+               sef_name = asef_name,
+               gtin = agtin
+         where id = aid
+        returning id into vid;
+    end if;
+
+    perform admin.product_description_set(vid, adescription);
+    perform admin.product_category_set(vid, acategory_id);
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.product_set(int, text, text, numeric, int, boolean, int, int, varchar, numeric, varchar, varchar)
+    is 'Creates or updates a product';
+
+alter function admin.product_set(int, text, text, numeric, int, boolean, int, int, varchar, numeric, varchar, varchar) owner to shop;

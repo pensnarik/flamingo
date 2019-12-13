@@ -1,0 +1,7 @@
+{% extends 'include/base.html' %}
+
+{% set title = 'Заказ #' + order.id|string %}
+
+{% block content %}
+{% include 'include/order-details.html' %}
+{% endblock %}

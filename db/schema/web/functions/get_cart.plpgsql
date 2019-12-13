@@ -1,0 +1,46 @@
+-- drop function web.get_cart(char(32));
+
+create or replace
+function web.get_cart
+(
+    acustomer_secret char(32)
+) returns table (
+    id          integer,
+    product_id  integer,
+    quantity    smallint,
+    price       numeric,
+    amount      numeric,
+    sku         varchar,
+    name        varchar,
+    description varchar,
+    image       varchar,
+    product_url varchar
+) as $$
+declare
+    vcustomer_id integer := shop.get_customer_id(acustomer_secret);
+begin
+    return query
+    with cart as (
+        select c.id,
+               c.product_id,
+               c.quantity,
+               p.price,
+               round(p.price * c.quantity, 2) as amount,
+               p.sku::varchar,
+               p.name::varchar,
+               d.description::varchar as description,
+               web.get_product_main_image(c.product_id)::varchar,
+               web.product_url_get(c.product_id)::varchar
+          from shop.cart c
+          join shop.product p
+            on p.id = c.product_id
+          left join shop.product_description d on d.product_id = p.id
+         where c.customer_id = vcustomer_id
+         order by c.dt_added
+     ) select * from cart c union all
+       select -1, null, sum(c_total.quantity)::smallint, null,
+              sum(c_total.amount), null, null, null, null, null from cart c_total;
+end;
+$$ language plpgsql security definer;
+
+alter function web.get_cart(char(32)) owner to shop;

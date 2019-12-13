@@ -1,0 +1,25 @@
+-- drop function web.get_attributes(aproduct_id integer);
+
+create or replace
+function web.get_attributes(aproduct_id integer)
+returns table
+(
+    category_id integer,
+    category_name varchar,
+    id integer,
+    name varchar,
+    value varchar,
+    description varchar,
+    priority integer
+) as $$
+begin
+    return query
+    select c.id, c.name::varchar, a.id, a.name::varchar, v.value::varchar,
+         a.description::varchar, a.priority
+      from shop.attribute_value v
+      join shop.attribute a on a.id = v.attribute_id
+      join shop.attribute_category c on c.id = a.attribute_category_id
+     where v.product_id = aproduct_id
+     order by a.priority;
+end;
+$$ language plpgsql security definer stable;

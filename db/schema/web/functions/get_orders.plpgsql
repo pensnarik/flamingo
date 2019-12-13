@@ -1,0 +1,29 @@
+create or replace
+function web.get_orders
+(
+    astatus t_order_status default 'new',
+    adate   date default current_date
+) returns table (
+    id            integer,
+    customer_id   integer,
+    dt_create     timestamptz,
+    amount        numeric,
+    status        t_order_status,
+    status_name   varchar,
+    email         varchar,
+    phone         varchar,
+    name          varchar,
+    ip            inet,
+    address       varchar,
+    delivery_cost numeric(8,2)
+) as $$
+begin
+    return query
+    select o.id, o.customer_id, o.dt_create, o.amount, o.status, web.get_status_name(o.status),
+           o.email, o.phone, o.name, o.ip, o.address, o.delivery_cost
+      from shop.customer_order o
+     where (o.status = astatus or astatus is null)
+       and ((o.dt_create between adate::timestamptz and (adate + interval '1 day')::timestamptz) or adate is null)
+    order by o.id desc;
+end;
+$$ language plpgsql security definer stable;

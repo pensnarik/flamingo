@@ -1,0 +1,10 @@
+{% extends 'include/base.html' %}
+
+{% block content %}
+<h3>Заказ отправлен</h3>
+
+<p>Благодарим за заказ! Мы получили его и сразу после обработки  свяжемся с вами для уточнения деталей. Для вашего удобства, копия заказа отправлена на e-mail: {{ order.email }}</p>
+<p>Проверить статус вашего заказа можно по <a href="/order/{{ order.id|string }}?token={{ order.token }}">ссылке</a></p>
+
+<p><a class="btn btn-primary" href="/"" role="button">Вернутья в магазин</a></p>
+{% endblock %}

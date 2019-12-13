@@ -1,0 +1,35 @@
+create or replace
+function stat.product_stat_update
+(
+    aproduct_id integer,
+    aviewed integer,
+    aadded_to_cart integer,
+    aordered integer
+) returns integer as $$
+declare
+    vproduct_id integer;
+begin
+    select p.id into vproduct_id
+      from shop.product p
+     where p.id = aproduct_id for update;
+
+    update shop.product set viewed = viewed + aviewed where id = aproduct_id;
+
+    update stat.product_stat
+       set viewed = viewed + aviewed,
+           added_to_cart = added_to_cart + aadded_to_cart,
+           ordered = aordered + aordered
+     where product_id = aproduct_id
+       and dt = current_date;
+
+    if not found then
+        insert into stat.product_stat(product_id, viewed, added_to_cart, ordered)
+        values (aproduct_id, aviewed, aadded_to_cart, aordered);
+    end if;
+
+    return vproduct_id;
+end;
+$$ language plpgsql security definer;
+
+alter function stat.product_stat_update(integer, integer, integer, integer) owner to shop;
+comment on function stat.product_stat_update(integer, integer, integer, integer) is 'Updates product stats';

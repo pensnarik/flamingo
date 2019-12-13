@@ -1,0 +1,35 @@
+create or replace
+function shop.after_order_spam_check(aorder_id integer) returns boolean as $$
+declare
+    vip inet; vOrdersToday bigint; vOrdersTotal bigint;
+begin
+    select ip into vip from shop.customer_order where id = aorder_id;
+
+    if not found or vip = '127.0.0.1' then
+        return false;
+    end if;
+
+    /* Customer should be blocked if he or she made more than 3 orders during one day
+       or more than 5 orders in total */
+    select sum(case when dt_create > now() - interval '1 day' then 1 else 0 end),
+           sum(1)
+      into vOrdersToday, vOrdersTotal
+      from shop.customer_order
+     where ip = vip;
+
+    if vOrdersTotal >= 5 or vOrdersToday >= 3 then
+        /* Block it */
+        insert into shop.black_list(ip, is_auto)
+        values (vip, true);
+
+        return true;
+    end if;
+
+    return false;
+end;
+$$ language plpgsql;
+
+alter function shop.after_order_spam_check(integer) owner to shop;
+
+comment on function shop.after_order_spam_check(integer) is
+    'Check if client should be blocked and blocks it';

@@ -1,0 +1,25 @@
+{% extends 'include/base.html' %}
+{% set title = 'Результаты поиска' %}
+{% set breadcrumbs = [{'name': 'Результаты поиска'}] %}
+
+{% block content %}
+{% include 'include/search-dialog.html' %}
+<table class="table">
+    <thead>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th>Цена</th>
+    </thead>
+{% for item in results %}
+<tr>
+    <td><a href="/product/{{ item.product_id }}">{{ item.sku }}</a></td>
+    <td><a href="/product/{{ item.product_id }}">{{ item.name }}</a></td>
+    <td>{{ item.price|int }}</td>
+</tr>
+{% else %}
+</table>
+<div class="alert alert-primary" role="alert">К сожалению, поиск не дал результатов.</div>
+{% endfor %}
+</table>
+
+{% endblock %}

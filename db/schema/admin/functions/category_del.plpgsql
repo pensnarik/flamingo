@@ -1,0 +1,12 @@
+create or replace
+function admin.category_del(aid integer) returns integer as $$
+declare
+    vid integer;
+begin
+    delete from shop.category where id = aid returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.category_del(integer) owner to shop;

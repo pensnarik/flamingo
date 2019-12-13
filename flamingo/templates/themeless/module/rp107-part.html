@@ -1,0 +1,52 @@
+<table width="100%">
+    <tr>
+        <td><img src="/static/image/module/blanks/Russian_Post.svg" width="200"></td>
+        <td><h1>ОПИСЬ</h1></td>
+        <td>ф. 107<br />Исправления не допускаются</td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding-top: 20px;">
+            Номер почтового идентификатора
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <table width="20%" class="id">
+                <tr>
+                    {% for i in range(1,14) %}<td class="square">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>{% endfor %}
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table class="main" width="100%">
+    <thead>
+        <th style="border-left: 3px solid #000; border-top: 3px solid #000;">№№<br>п/п</th>
+        <th style="border-top: 3px solid #000;">Наименование предметов</th>
+        <th style="border-top: 3px solid #000;">Кол-во<br>предметов</th>
+        <th style="border-right: 3px solid #000; border-top: 3px solid #000;">Объявленная ценность, руб.</th>
+    </thead>
+    <tfoot>
+        <td colspan="2" style="border-left: none; border-bottom: none; font-weight: 700;">Общий итог предметов объявленной ценности</td>
+        <td style="border: 3px solid #000;"></td>
+        <td style="border: 3px solid #000;"></td>
+    </tfoot>
+    <tbody>
+    {% for r in range(1,14) %}
+        <tr>
+            {% if loop.last %}
+            <td style="border-left: 3px solid #000; border-bottom: 3px solid #000;"></td>
+            <td></td>
+            <td></td>
+            <td style="border-right: 3px solid #000;">&nbsp;</td>
+            {% else %}
+            <td style="border-left: 3px solid #000; text-align: center;">{% if loop.index <= items|length %}{{ loop.index }}{% else %}&nbsp;{% endif %}</td>
+            <td>{% if loop.index <= items|length %}{{ items[loop.index0].name }}{% endif %}</td>
+            <td style="text-align: right;">{% if loop.index <= items|length %}{{ items[loop.index0].quantity }}{% else %}&nbsp;{% endif %}</td>
+            <td style="border-right: 3px solid #000; text-align: right;">{% if loop.index <= items|length %}{{ items[loop.index0].amount }}{% else %}&nbsp;{% endif %}</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

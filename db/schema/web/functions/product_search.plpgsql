@@ -1,0 +1,85 @@
+-- drop function web.product_search (integer, integer, integer, character varying, character varying, character varying, integer, integer, json);
+
+create or replace
+function web.product_search
+(
+    amanufacturer_id  integer,
+    acategory_id      integer,
+    agroup_id         integer,
+    aname             varchar,
+    aorder_col        varchar,
+    aorder_dir        varchar,
+    aproducts_on_page integer,
+    apage             integer,
+    afilters          json default null::json,
+    ainclude_subcategories boolean default true
+) returns integer[] as $$
+declare
+    vsql text; vwhere text := '';
+    vresult integer[]; rfilter record; vcompare text;
+begin
+    raise notice 'filters: %', afilters;
+    if aorder_col not in ('price', 'name', 'sort_order') or aorder_dir not in ('asc', 'desc') then
+        return array[]::integer[];
+    end if;
+
+    vsql := $sql$
+    select array_agg(t.id order by {order_col} {order_dir})
+      from (
+        select p.id, p.{order_col}
+          from shop.product p
+         where p.is_visible and p.dt_deleted is null
+        {where}
+        order by p.{order_col} {order_dir}
+        limit {limit} offset {offset}
+    ) t;
+    $sql$;
+
+    if amanufacturer_id is not null then
+        vwhere := vwhere || ' and p.manufacturer_id = $1';
+    end if;
+    if acategory_id is not null then
+        if ainclude_subcategories then
+            vwhere := vwhere || ' and array[$2] <@ p.path';
+        else
+            vwhere := vwhere || ' and exists (select * from shop.product_category pc where pc.category_id = $2 and pc.product_id = p.id)';
+        end if;
+    end if;
+    if aname is not null then
+        vwhere := vwhere || $sql$ and (lower(p.name) like '%' || lower($3) || '%' or p.sku = lower($3)) $sql$;
+    end if;
+    if agroup_id is not null then
+        vwhere := vwhere || ' and exists (select * from shop.products_in_group pg where pg.product_id = p.id and pg.group_id = $4)';
+    end if;
+    for rfilter in (
+        with unpacked_values as (
+            select unnest(string_to_array(r.value, ',')) as value, r.attribute_id, f.id as filter_id
+              from json_to_recordset(afilters) as r(attribute_id integer, value text)
+              left join shop.filter f on f.attribute_id = r.attribute_id
+             where r.value != ''
+        )
+        select uv.attribute_id, format('v.attribute_id = %L and ', uv.attribute_id) ||
+               '(' || string_agg(coalesce(fv.expression, format('v.value = any(string_to_array(%L, %L))', uv.value, ',')) , ' or ') || ')' as expression
+          from unpacked_values uv
+          left join shop.filter_value fv
+            on fv.filter_id = uv.filter_id
+           and fv.distinct_value = uv.value
+        group by uv.attribute_id
+    ) loop
+        vwhere := vwhere || format(' and exists (select * from shop.attribute_value v where %s and v.product_id = p.id)', rfilter.expression);
+    end loop;
+
+    vsql := replace(vsql, '{where}', vwhere);
+    vsql := replace(vsql, '{order_dir}', aorder_dir);
+    vsql := replace(vsql, '{order_col}', aorder_col);
+    vsql := replace(vsql, '{limit}', aproducts_on_page::text);
+    vsql := replace(vsql, '{offset}', (aproducts_on_page * (apage - 1))::text);
+    raise notice '%', vsql;
+    execute vsql into vresult using amanufacturer_id, acategory_id, aname, agroup_id;
+    raise notice '%', vresult;
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+alter function web.product_search (integer, integer, integer, character varying, character varying, character varying, integer, integer, json, boolean) owner to shop;
+comment on function web.product_search (integer, integer, integer, character varying, character varying, character varying, integer, integer, json, boolean) is 'Search product, used in ajax queries';

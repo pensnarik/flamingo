@@ -1,0 +1,18 @@
+<table cellpadding="10" border>
+    <thead>
+        <td>#</td>
+        <td>Артикул</td>
+        <td>Наименование</td>
+        <td>Количество</td>
+        <td>Цена</td>
+    </thead>
+{% for item in items %}
+<tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ item.product_sku }}</td>
+    <td>{{ item.name }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.price|int }}</td>
+</tr>
+{% endfor %}
+</table>

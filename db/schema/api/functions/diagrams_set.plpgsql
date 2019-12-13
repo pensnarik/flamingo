@@ -1,0 +1,38 @@
+create or replace
+function api.diagrams_set
+(
+    aproduct_id integer,
+    adiagrams json
+) returns integer as $$
+declare
+    vdiagram text; vlookup_no integer; vresult integer := 0;
+begin
+    for vdiagram, vlookup_no in (
+        select diagram, lookup_no
+          from json_to_recordset(adiagrams)
+            as r(diagram text, lookup_no integer)
+        )
+    loop
+
+        if not exists (
+         select *
+           from shop.product_diagram
+          where product_id = aproduct_id
+            and diagram = vdiagram
+            and lookup_no = vlookup_no
+        ) then
+
+            insert into shop.product_diagram (product_id, diagram, lookup_no)
+            values (aproduct_id, vdiagram, vlookup_no);
+
+            vresult := vresult + 1;
+        end if;
+    end loop;
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+comment on function api.diagrams_set(integer, json) is 'Loads diagram from JSON into the database';
+
+alter function api.diagrams_set(integer, json) owner to shop;

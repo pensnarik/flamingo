@@ -1,0 +1,22 @@
+create or replace
+function web.create_payment
+(
+    aservice varchar,
+    aorder_id integer,
+    acurrency shop.t_currency,
+    aamount numeric(8,2),
+    aip inet,
+    aexternal_id varchar
+) returns integer as $$
+declare
+    vid integer;
+begin
+    insert into shop.payment(service, order_id, currency, amount, ip, external_id)
+    values (aservice, aorder_id, acurrency, aamount, aip, aexternal_id)
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function web.create_payment(varchar, integer, shop.t_currency, numeric, inet, varchar) is 'Creates a new payment';

@@ -1,0 +1,48 @@
+create or replace
+function admin.product_move_to_category
+(
+    aparent_category varchar,
+    acategory varchar,
+    amask varchar
+) returns integer as $$
+declare
+    vresult integer;
+    vcategory_id integer; vparent_category_id integer;
+begin
+    vresult := (select count(*) from shop.product where name like amask);
+
+    if vresult = 0 then
+        raise warning 'No products matching the given mask';
+        return 0;
+    end if;
+
+    select id
+      into vparent_category_id
+      from shop.category
+     where name = aparent_category and parent_id is null;
+
+    if vparent_category_id is null then
+        return 0;
+    end if;
+
+    select id
+      into vcategory_id
+      from shop.category
+     where name = acategory
+       and parent_id = vparent_category_id;
+
+    if vcategory_id is null then
+        insert into shop.category(name, parent_id)
+        values (acategory, vparent_category_id)
+        returning id into vcategory_id;
+    end if;
+
+    perform admin.product_category_set(p.id, vcategory_id)
+       from shop.product p
+      where p.name like amask;
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.product_move_to_category(varchar, varchar, varchar) is 'Move product matching mask amask to specified subcategory';

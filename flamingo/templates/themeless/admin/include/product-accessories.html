@@ -1,0 +1,22 @@
+    <thead>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th>Цена</th>
+        <th>&nbsp;</th>
+    </thead>
+    <tfoot>
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3"><button type="button" class="btn btn-primary" onclick="addAccessory();">Добавить</button></td>
+        </tr>
+    </tfoot>
+    <tbody>
+{% for accessory in aks %}
+    <tr id="accessory-{{ accessory.id }}">
+        <td>{{ accessory.child_sku }}</td>
+        <td><a href="{{ config.BaseURL }}/product/{{ accessory.child_id }}?force_visibility=true" target="_blank">{{ accessory.child_name }}</a></td>
+        <td>{{ accessory.child_price|int }}</td>
+        <td><button type="button" class="btn" onclick="delAccessory({{ accessory.id}});"><span class="glyphicon glyphicon-trash"></span></button></td>
+    </tr>
+{% endfor %}
+    </tbody>

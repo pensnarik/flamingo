@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<yml_catalog date="{{ date }}">
+    <shop>
+        <name>{{ config.CompanyName|safe }}</name>
+        <url>{{ config.BaseURL }}</url>
+
+        <catalog>
+            <categories>
+                {% for category in categories -%}
+                <category id="{{ category.id }}" {% if category.parent_id %}parentID="{{ category.parent_id }}"{% endif %}>{{ category.name }}</category>
+                {% endfor %}
+            </categories>
+        </catalog>
+
+        <items>
+            {% for offer in offers -%}
+            <item id="{{ offer.sku }}">
+                <name>{{ offer.name }}</name>
+                <categoryId>{{ offer.category_id }}</categoryId>
+                <price>{{ offer.price }}</price>
+                <url>{{ config.BaseURL }}{{ offer.url }}</url>
+                <image>{{ config.BaseURL }}{{ offer.main_image }}</image>
+                <vendor>{{ offer.manufacturer_name }}</vendor>
+                <description>{{ offer.description }}</description>
+            </item>
+            {% endfor %}
+        </items>
+    </shop>
+</yml_catalog>

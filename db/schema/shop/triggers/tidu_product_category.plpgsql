@@ -1,0 +1,20 @@
+create or replace
+function shop.tidu_product_category() returns trigger as $$
+declare
+    r record;
+begin
+    if TG_OP = 'DELETE' then
+        r := old;
+    else
+        r := new;
+    end if;
+
+    update shop.product set path = web.product_path_get(r.product_id) where id = r.product_id;
+
+    return r;
+end;
+$$ language plpgsql;
+
+create trigger tidu_product_category
+    after insert or delete or update on shop.product_category
+    for each row execute procedure shop.tidu_product_category();

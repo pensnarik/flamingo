@@ -1,0 +1,12 @@
+<thead>
+    <th>Артикул</th>
+    <th>Наименование</th>
+    <th>Цена</th>
+</thead>
+{% for product in products %}
+<tr>
+    <td>{{ product.sku }}</td>
+    <td><a href="#" onclick="selectAccessory({{ product.product_id }});">{{ product.name }}</a></td>
+    <td>{{ product.price }}</td>
+</tr>
+{% endfor %}

@@ -1,0 +1,37 @@
+{% extends 'include/base.html' %}
+
+{% set title = 'Диаграмма компонент' %}
+
+{% block content %}
+<div class="panel panel-default">
+    <div class="panel-heading text-center">Диаграмма компонент для <strong>{{ vehicle_name }}</strong></div>
+    <div class="panel-body">
+
+<div class="row text-center">
+    <img src="/static/image/diagram/{{ id }}.gif">
+</div>
+
+</div></div></div>
+
+<table class="table">
+    <thead>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th>Цена</th>
+        <th>Номер</th>
+        <th>&nbsp;</th>
+    </thead>
+{% for item in items %}
+    <tr>
+        <td><a href="/product/{{ item.product_id }}">{{ item.product_sku }}</a></td>
+        <td>{{ item.product_name }}{% if item.product_description %} ({{ item.product_description }}){% endif %}</td>
+        <td>{{ item.product_price }}</td>
+        <td>{{ item.lookup_no }}</td>
+        <td><button class="btn ts-append" product-id="{{ item.product_id }}"><img src="/static/image/shopping-cart.png">&nbsp; В корзину</button></td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

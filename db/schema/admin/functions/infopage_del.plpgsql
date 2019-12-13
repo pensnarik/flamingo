@@ -1,0 +1,13 @@
+create or replace
+function admin.infopage_del(aid integer) returns integer as $$
+declare
+    vid integer;
+begin
+    delete from shop.infopage where id = aid
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.infopage_del(integer) owner to shop;

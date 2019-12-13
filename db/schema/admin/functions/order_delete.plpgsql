@@ -1,0 +1,17 @@
+create or replace
+function admin.order_delete(aid integer) returns integer as $$
+declare
+    vid integer;
+begin
+    delete from shop.order_item i where i.order_id = aid;
+
+    delete from shop.customer_order o where o.id = aid
+        returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.order_delete(integer) owner to shop;
+
+comment on function admin.order_delete(integer) is 'Delete order';

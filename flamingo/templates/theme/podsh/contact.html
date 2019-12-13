@@ -1,0 +1,30 @@
+{% extends 'include/base.html' %}
+
+{% set title = 'Контакты' %}
+{% set path = '/contact' %}
+{% set breadcrumbs = [{'name': 'Контакты'}] %}
+
+{% block content %}
+<p>
+Для связи с нашим представителем Вы можете воспользоваться любым удобным, указанным ниже.
+</p>
+
+<table class="table">
+    <tr>
+        <td><img src="/static/image/icons/icq.png"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img src="/static/image/icons/skype.png"></td>
+        <td><a href="skype:?chat"></a></td>
+    </tr>
+    <tr>
+        <td><img src="/static/image/icons/gmail.png"></td>
+        <td><a href="mailto:"></a></td>
+    </tr>
+    <tr>
+        <td><img src="/static/image/icons/phone.png"></td>
+        <td><a href="tel:+"></a></td>
+    </tr>
+</table>
+{% endblock %}

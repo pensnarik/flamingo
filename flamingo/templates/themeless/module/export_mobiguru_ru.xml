@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE yml_catalog SYSTEM "shops.dtd">
+<yml_catalog date="{{ date }}">
+<shop>
+    <name>{{ config.CompanyName|safe }}</name>
+    <company>{{ config.CompanyName|safe }}</company>
+    <url>{{ config.BaseURL }}</url>
+
+    <currencies>
+        <currency id="RUR" rate="1"/>
+    </currencies>
+
+    <catalog>
+        <categories>
+            {% for category in categories -%}
+            <category id="{{ category.id }}" {% if category.parent_id %}parentID="{{ category.parent_id }}"{% endif %}>{{ category.name }}</category>
+            {% endfor %}
+        </categories>
+    </catalog>
+
+    <offers>
+        {% for offer in offers -%}
+        <offer id="{{ offer.sku }}">
+            <name>{{ offer.name }}</name>
+            <categoryId>{{ offer.category_id }}</categoryId>
+            <price>{{ offer.price }}</price>
+            <currencyId>RUR</currencyId>
+            <url>{{ config.BaseURL }}{{ offer.url }}</url>
+            <picture>{{ config.BaseURL }}{{ offer.main_image }}</picture>
+            <vendor>{{ offer.manufacturer_name }}</vendor>
+            <description>{% if offer.description %}{{ offer.description }}{% endif %}</description>
+        </offer>
+        {% endfor %}
+    </offers>
+</shop>
+</yml_catalog>

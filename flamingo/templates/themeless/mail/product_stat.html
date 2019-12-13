@@ -1,0 +1,17 @@
+<table cellpadding="10" border>
+    <thead>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th>Просмотры</th>
+    </thead>
+
+    <tbody>
+        {% for item in stat %}
+        <tr>
+            <td>{{ item.sku }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.viewed }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

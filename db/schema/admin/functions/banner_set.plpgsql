@@ -1,0 +1,33 @@
+create or replace
+function admin.banner_set
+(
+    aid integer,
+    aimage_url varchar,
+    apriority integer,
+    ais_visible boolean,
+    ahref varchar,
+    atitle varchar
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if aid is null then
+        insert into shop.banner (image_url, priority, is_visible, href, title)
+        values (aimage_url, apriority, ais_visible, ahref, atitle)
+        returning id into vid;
+    else
+        update shop.banner
+           set image_url = aimage_url,
+               priority = apriority,
+               is_visible = ais_visible,
+               href = ahref,
+               title = atitle
+         where id = aid
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.banner_set(integer, varchar, integer, boolean, varchar, varchar) owner to shop;

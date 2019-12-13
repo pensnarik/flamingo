@@ -1,0 +1,9 @@
+<div class="nav-side-menu">
+    <div class="menu-list">
+        <ul class="nav nav-pills nav-stacked">
+            {% for item in menu %}
+            <li{% if item.url == path %} class="active"{% endif %}><a href="{{ item.url }}">{{ item.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+{% extends 'include/base.html' %}
+
+{% block content %}
+
+{% if status == 'success' %}
+<p>Платеж завершён успешно.</p>
+{% else %}
+<p>Произошла ошибка во время обработки платежа</p>
+{% endif %}
+
+{% endblock %}

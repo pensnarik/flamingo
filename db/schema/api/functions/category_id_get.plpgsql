@@ -1,0 +1,29 @@
+create or replace
+function api.category_id_get
+(
+    aname varchar,
+    aparent_id integer
+) returns integer as $$
+declare
+    vid integer;
+begin
+    raise notice 'api.category_id_get(%, %)', aname, aparent_id;
+    select c.id
+      into vid
+      from shop.category c
+     where c.name = aname
+       and c.parent_id is not distinct from aparent_id;
+
+    if not found then
+        insert into shop.category (name, parent_id)
+        values (aname, aparent_id)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function api.category_id_get(varchar, integer) is 'Ruturns category id by name and parent_id, creates one if does not exist';
+
+alter function api.category_id_get(varchar, integer) owner to shop;

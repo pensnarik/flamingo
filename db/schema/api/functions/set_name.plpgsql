@@ -1,0 +1,16 @@
+create or replace
+function api.set_name(asku varchar, aname varchar) returns integer as $$
+begin
+    update shop.product
+       set name = aname
+     where sku = asku;
+
+    if found then
+        return 1;
+    else
+        return 0;
+    end if;
+end;
+$$ language plpgsql security definer;
+
+alter function api.set_name(varchar, varchar) owner to shop;

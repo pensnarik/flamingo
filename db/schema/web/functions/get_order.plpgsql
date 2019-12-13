@@ -1,0 +1,42 @@
+create or replace
+function web.get_order
+(
+    aid integer,
+    atoken varchar
+) returns table (
+    id            integer,
+    customer_id   integer,
+    dt_create     timestamptz,
+    amount        numeric,
+    status        shop.t_order_status,
+    status_name   varchar,
+    email         varchar,
+    phone         varchar,
+    name          varchar,
+    ip            inet,
+    city          varchar,
+    address       varchar,
+    delivery_cost numeric(8,2),
+    token         char(32),
+    subtotal      numeric,
+    total         numeric,
+    delivery_code varchar,
+    delivery_name varchar,
+    last_name     varchar,
+    patronymic_name varchar,
+    payment_method_id integer,
+    payment_method_code varchar,
+    payment_method_name varchar
+) as $$
+begin
+    return query
+    select o.id, o.customer_id, o.dt_create, o.amount, o.status, web.get_status_name(o.status),
+           o.email, o.phone, o.name, o.ip, o.city, o.address, coalesce(o.delivery_cost, 0), o.token,
+           o.amount, o.amount + o.delivery_cost, o.delivery_code, o.delivery_name,
+           o.last_name, o.patronymic_name, o.payment_method_id, p.code as payment_method_code,
+           p.name as payment_method_name
+      from shop.customer_order o
+      left join shop.payment_method p on p.id = o.payment_method_id
+     where o.id = aid;
+end;
+$$ language plpgsql security definer stable;

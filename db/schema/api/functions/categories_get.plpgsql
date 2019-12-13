@@ -1,0 +1,11 @@
+create or replace
+function api.categories_get(aparent_id integer default null) returns table
+(
+    id integer, name varchar, parent_id integer, sort_order integer
+) as $$
+    select c.id, c.name, c.parent_id, c.sort_order
+      from shop.category c
+     where (c.parent_id = aparent_id or aparent_id is null)
+$$ language sql security definer;
+
+alter function api.categories_get(integer) owner to shop;

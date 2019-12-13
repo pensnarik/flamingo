@@ -1,0 +1,15 @@
+create or replace
+function shop.ti_product_history() returns trigger as $$
+begin
+    insert into stat.product_price_history (product_id, price)
+    values (new.id, new.price);
+
+    insert into stat.product_available_history (product_id, available)
+    values (new.id, new.available);
+
+    return new;
+end;
+$$ language plpgsql security definer;
+create trigger ti_product_history
+    after insert on shop.product for each row execute procedure
+    shop.ti_product_history();

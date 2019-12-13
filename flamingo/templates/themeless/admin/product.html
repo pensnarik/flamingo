@@ -1,0 +1,205 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/products' %}
+{% set title = 'Редактирование товара' %}
+
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/products', 'name': 'Товары'}, {'url': '/admin/product/' + product.id|string, 'name': product.name}] %}
+
+{% block content %}
+
+{% include 'admin/forms/product-select.html' %}
+
+<h3>Основные характеристики</h3>
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-danger">{{ message }}</div>
+{% endfor %}
+
+<form action="/admin/product" method="POST">
+    <input type="hidden" name="id" value="{{ product.id }}">
+    <div class="row">
+        <div class="col col-md-8 col-xs-12">
+            <div class="form-group">
+                <label for="name">Наименование товара</label>
+                <input type="text" value="{{ product.name }}" name="name" class="form-control">
+            </div>
+        </div>
+        <div class="col col-md-4 col-xs-12">
+            <label>Предпросмотр</label>
+            <a class="btn btn-success" href="{{ config.BaseURL}}{{ product.url }}?force_visibility=true" target="_blank">Посмотреть товар на сайте&nbsp;&nbsp;<span class="glyphicon glyphicon-flash"></span></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-xs-12">
+            <label for="category_id">Категория</label>
+            <select name="category_id" class="form-control">
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id == product.category_id %}selected="selected"{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4 col-xs-12">
+            <label for="category_id">Производиель</label>
+            <select name="manufacturer_id" class="form-control">
+                {% for manufacturer in manufacturers %}
+                <option value="{{ manufacturer.id }}" {% if manufacturer.id == product.manufacturer_id %}selected="selected"{% endif %}>{{ manufacturer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-xs-12">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="is_visible" {% if product.is_visible %}checked="checked"{% endif %}>Отображать товар в каталоге (выгрузке)
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="description">Описание товара</label>
+        <textarea name="description" class="form-control" rows="7">{% if product.description %}{{ product.description }}{% endif %}</textarea>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-3 col-xs-12">
+            <label for="price">Цена</label>
+            <input name="price" value="{% if product.price %}{{ product.price }}{% endif %}" class="form-control input-md-4">
+        </div>
+        <div class="form-group col-md-3 col-xs-12">
+            <label for="previous_price">Старая цена</label>
+            <input name="previous_price" value="{% if product.previous_price %}{{ product.previous_price }}{% endif %}" class="form-control input-md-4">
+        </div>
+        <div class="form-group col-md-3 col-xs-12">
+            <label for="available">Наличие</label>
+            <input name="available" value="{{ product.available }}" class="form-control input-md-4">
+        </div>
+        <div class="form-group col-md-3 col-xs-12">
+            <label for="sku">Артикул</label>
+            <input name="sku" value="{{ product.sku }}" class="form-control input-md-4" {% if product %}readonly="readonly"{% endif %}>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6 col-xs-6">
+            <label for="sef_name">ЧПУ</label>
+            <input name="sef_name" value="{{ product.sef_name }}" class="form-control input-md-4" {% if product %}readonly="readonly"{% endif %}>
+        </div>
+        <div class="form-group col-md-6 col-xs-6">
+            <label for="gtin">Штрихкод</label>
+            <input name="gtin" value="{% if product.gtin %}{{ product.gtin }}{% endif %}" class="form-control">
+        </div>
+    </div>
+    <div class="row text-right">
+        <div class="col col-md-12">
+            <a href="/admin/product/{{ product.id }}/attributes" class="btn btn-primary">Характеристики</a>
+            <button type="submit" class="btn btn-primary">
+                <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;&nbsp;Сохранить
+            </button>
+        </div>
+    </div>
+
+</form>
+
+<h3>Аксессуары</h3>
+<div class="row">
+<table class="table" id="product-accessories">
+    <thead>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th>Цена</th>
+        <th>&nbsp;</th>
+    </thead>
+    <tfoot>
+        <tr>
+            <td>&nbsp;</td>
+            <td colspan="3"><button type="button" class="btn btn-primary" onclick="addAccessory();">Добавить</button></td>
+        </tr>
+    </tfoot>
+    <tbody>
+{% for accessory in aks %}
+    <tr id="accessory-{{ accessory.id }}">
+        <td>{{ accessory.child_sku }}</td>
+        <td><a href="{{ config.BaseURL }}/product/{{ accessory.child_id }}?force_visibility=true" target="_blank">{{ accessory.child_name }}</a></td>
+        <td>{{ accessory.child_price|int }}</td>
+        <td><button type="button" class="btn" onclick="delAccessory({{ accessory.id}});"><span class="glyphicon glyphicon-trash"></span></button></td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+</div>
+
+<h3>Изображения</h3>
+
+<div class="row">
+{% for image in images %}
+    <div class="col-xs-12 col-md-4">
+        <div class="thumbnail">
+            <img src="{{ image.url }}">
+            <div class="caption text-center">
+                <p>
+                    <button type="button" onclick="moveImage({{ product.id }}, {{ image.id }}, 'up');" class="btn btn-warning"><span class="glyphicon glyphicon-chevron-left" ></span></button>
+                    <button type="button" data-product-id="{{ product.id }}" data-image-id="{{ image.id }}" class="btn btn-danger at-delete-image">Удалить</button>
+                    <button type="button" onclick="moveImage({{ product.id }}, {{ image.id }}, 'down');" class="btn btn-warning"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+<form style="border: 1px solid #eee; border-radius: 5px; padding: 10px;" action="/admin/product/{{ product.id }}/image/upload" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Загрузить новое изображение</label>
+        <input type="file" id="file" name="file">
+        <p class="help-block">Выберите изображение для загрузки.</p>
+    </div>
+    <button type="submit" class="btn btn-default">Загрузить</button>
+</form>
+
+<hr>
+
+<div class="row text-right">
+    <form action="/admin/product/{{ product.id }}/delete" method="POST">
+        <button type="submit" class="btn btn-danger" {% if product %}{% else %}disabled="disabled"{% endif %}>
+            <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Удалить товар
+        </button>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $('.at-delete-image').click(function(e) {
+        deleteImage($(this).attr('data-product-id'), $(this).attr('data-image-id'));
+    });
+
+    function moveImage(product_id, image_id, direction) {
+
+        var data = {id: image_id, direction: direction};
+        $.ajax({method: 'POST', url: '/admin/product/' + product_id + '/move_picture',
+                contentType: 'application/json',
+                data: JSON.stringify(data)}).done(function(data) {
+            window.location.reload();
+        });
+    }
+
+    function addAccessory() {
+        $('#dlg-product-select').modal();
+    }
+
+    function reloadAccessories() {
+        $('#product-accessories').load('/admin/product/{{ product.id}}/accessories');
+    }
+
+    function selectAccessory(child_id) {
+        $.post('/admin/product/{{ product.id}}/accessory-add/' + child_id).done(function(e) {
+            $('#dlg-product-select').modal('hide');
+            reloadAccessories();
+        });
+    }
+
+    function delAccessory(id) {
+        $.post('/admin/product/{{ product.id }}/accessory-del/' + id).done(function(e) {
+            console.log(e);
+            $('#accessory-' + e.id).remove();
+        });
+    }
+</script>
+{% endblock %}

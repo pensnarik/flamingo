@@ -1,0 +1,24 @@
+-- drop function api.attributes_set(varchar, json, boolean);
+
+create or replace
+function api.attributes_set
+(
+    asku varchar,
+    aattributes json,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vresult integer;
+begin
+     select sum(api.attribute_value_set(asku, category, name, value, priority, description, acreate_if_not_exists))
+       into vresult
+       from json_to_recordset(aattributes)
+         as r(category text, name text, value text, priority integer, description text);
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+comment on function api.attributes_set(varchar, json, boolean) is 'Updates product attributes, returns count of updated attributes';
+
+alter function api.attributes_set(varchar, json, boolean) owner to shop;

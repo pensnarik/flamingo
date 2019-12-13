@@ -1,0 +1,74 @@
+-- drop function web.export(boolean);
+
+create or replace
+function web.export
+(
+  amodule varchar,
+  available_only boolean default false
+) returns table
+(
+    id integer,
+    name varchar,
+    price integer,
+    old_price integer,
+    description varchar,
+    main_image text,
+    category_id integer,
+    category_name varchar,
+    manufacturer_id integer,
+    manufacturer_name varchar,
+    available integer,
+    attributes json,
+    url varchar,
+    sku varchar,
+    previous_price integer,
+    images json,
+    image_thumbs json
+) as $$
+begin
+    return query
+    select p.id,
+           p.name::varchar,
+           p.price::integer,
+           p.price::integer,
+           pd.description::varchar,
+           web.get_product_main_image(p.id),
+           pc.category_id,
+           c.name::varchar,
+           p.manufacturer_id, m.name::varchar,
+           p.available,
+           coalesce((select json_agg(f.*) from web.get_product_card_attributes(p.id) f), '[]'::json),
+           web.product_url_get(p.id),
+           p.sku::varchar,
+           p.previous_price::integer,
+           coalesce((select json_agg(f.*) from web.get_product_images(p.id) f), '[]'::json),
+           coalesce((select json_agg(f.*) from web.get_product_images(p.id, 200) f), '[]'::json)
+      from shop.product p
+      join shop.product_category pc on pc.product_id = p.id
+      join shop.category c on c.id = pc.category_id
+      left join shop.product_description pd on pd.product_id = p.id
+      join shop.manufacturer m on m.id = p.manufacturer_id
+     where (p.available > 0 or available_only = false)
+       and (p.is_visible)
+       and p.dt_deleted is null
+       and p.is_exported
+       and not exists (
+        select *
+          from module.module_category mc
+         where mc.module = amodule
+           and mc.category_id = pc.category_id
+           and mc.is_exported = false
+       )
+       and not exists (
+        select *
+          from module.module_product mp
+         where mp.module = amodule
+           and mp.product_id = p.id
+           and mp.is_exported = false
+       );
+end;
+$$ language plpgsql security definer stable;
+
+comment on function web.export(varchar, boolean) is 'Export products, used by export plugins';
+
+alter function web.export(varchar, boolean) owner to shop;

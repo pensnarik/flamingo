@@ -1,0 +1,24 @@
+{% extends 'include/base.html' %}
+
+{% set title = 'Отзывы о нас' %}
+
+{% block content %}
+
+{% for feedback in feedbacks %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong><span class="glyphicon glyphicon-user"></span>&nbsp;
+        {{ feedback.name }}, {{ feedback.dt_added.strftime('%d.%m.%Y') }}
+        </strong>
+        <br />
+        {% for i in range(1, feedback.rate + 1) %}
+        <img src="/static/image/star.png?v=2">
+        {% endfor %}
+    </div>
+    <div class="panel-body">
+    {{ feedback.message }}
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

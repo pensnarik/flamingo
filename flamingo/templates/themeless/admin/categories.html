@@ -1,0 +1,108 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/categories' %}
+
+{% set title = 'Категории' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/categories', 'name': 'Категории'}] %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Родитель</th>
+        <th>Экспорт</th>
+        <th>Поз</th>
+        <th>Действия</th>
+    </thead>
+    {% for category in categories %}
+    <tr id="tr-category-{{ category.id }}">
+        <td><a href="/admin/category/{{ category.id }}">{{ category.id }}</a></td>
+        <td><input type="text" name="name" value="{{ category.name }}"></td>
+        <td>
+            <select name="parent_id">
+                <option value="" {% if not category.parent_id %}selected="selected"{% endif %}>нет</option>
+                {% for parent in categories %}
+                <option value="{{ parent.id }}" {% if parent.id == category.parent_id %}selected="selected"{% endif %}>{{ parent.name }}</option>
+                {% endfor %}
+            </select>
+        <td>
+            <a href="/admin/category/{{ category.id }}" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span></a>
+        </td>
+        <td>
+            <input type="text" name="sort_order" value="{{ category.sort_order }}">
+        </td>
+        <td>
+            <button type="button" class="btn btn-warning" onclick="updateCategory({{ category.id }});">Сохранить</button>
+            <button type="button" class="btn btn-danger" onclick="deleteCategory({{ category.id }});">Удалить</button>
+        </td>
+    </tr>
+    {% endfor %}
+    <tr id="tr-category-new">
+        <td></td>
+        <td><input id="input-new-category" type="text" value="" placeholder="Новая категория"></td>
+        <td id="new-category">
+            <select name="parent_id">
+                <option value="">нет</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td></td>
+        <td><input name="sort_order" value="0"></td>
+        <td><button type="button" class="btn btn-primary" onclick="newCategory();">Добавить</button></td>
+    </tr>
+</table>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    function updateCategory(id) {
+        var parent_id = $('#tr-category-' + id + ' select[name="parent_id"]').val();
+        var name = $('#tr-category-' + id + ' input[name="name"]').val();
+        var is_exported;
+        var sort_order = $('#tr-category-' + id + ' input[name="sort_order"]').val();
+
+        if ($('#tr-category-' + id + ' input[name="is_exported"]').is(':checked')) {
+            is_exported = true;
+        } else {
+            is_exported = false;
+        }
+        categorySet(id, name, parent_id, is_exported, sort_order);
+    }
+
+    function categorySet(id, name, parent_id, is_exported, sort_order) {
+        if (name == '') {
+            alert('Название не должно быть пустым');
+            return;
+        }
+
+        $.ajax({method: 'POST', url: '/admin/category/set',
+                data: JSON.stringify({'id': id, 'name': name, 'parent_id': parent_id,
+                                      'is_exported': is_exported, 'sort_order': sort_order}),
+                contentType: 'application/json'}).done(function(data) {
+            window.location.reload();
+        });
+    }
+
+    function deleteCategory(id) {
+        $.ajax({method: 'POST', 'url': '/admin/category/' + id + '/del'})
+            .done(function(data) {
+                if(data.status == 'ok') {
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
+    }
+
+    function newCategory() {
+        categorySet('',
+                    $('#input-new-category').val(),
+                    $('#new-category select[name="parent_id"]').val(),
+                    $('#tr-category-new input[name="is_exported"]').is(':checked'),
+                    $('#tr-category-new input[name="sort_order"]').val());
+    }
+</script>
+{% endblock %}

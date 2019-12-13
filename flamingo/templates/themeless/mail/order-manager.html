@@ -1,0 +1,68 @@
+<h3>Новый заказ {{ order.id }} на сайте {{ config.CompanyName }}</h3>
+
+<table>
+    <tr>
+        <td>ФИО</td>
+        <td>{{ order.last_name }} {{ order.name }} {{ order.patronymic_name }}</td>
+    </tr>
+    <tr>
+        <td>Телефон</td>
+        <td>{{ order.phone }}</td>
+    </tr>
+    <tr>
+        <td>Email</td>
+        <td>{{ order.email }}</td>
+    </tr>
+
+    <tr>
+        <td>Адрес</td>
+        <td>{{ order.address }}</td>
+    </tr>
+    <tr>
+        <td>Сумма заказа</td>
+        <td>{{ order.subtotal|int }}</td>
+    </tr>
+    <tr>
+        <td>Способ доставки</td>
+        <td>{{ order.delivery_name }}</td>
+    </tr>
+    <tr>
+        <td>Стоимость доставки</td>
+        <td>{{ order.delivery_cost|int }}</td>
+    </tr>
+    <tr>
+        <td>Итого</td>
+        <td><strong>{{ order.total|int }}</strong></td>
+    </tr>
+</table>
+
+<p>Список позиций заказа:</p>
+
+{% include 'mail/order-details.html' %}
+
+<p>Статус заказа можно проверить по <a href="{{ config.BaseURL }}/order/{{ order.id }}?token={{ order.token }}">ссылке</a> (как его видит клиент) или в <a href="{{ config.BaseURL }}/admin">панели администратора</a>.</p>
+
+<p>Способ оплаты: {{ order.payment_method_name }}</p>
+
+<p>IP адрес и город: {{ order.ip }}, {{ ip_info['unrestricted_value'] }}</p>
+<p>Другие заказы с этого IP:</p>
+{% if orders_from_this_ip|length == 0 %}
+<p>С этого IP заказов раньше не было</p>
+{% else %}
+<table cellpadding="10" border>
+    <thead>
+        <td>Номер</td>
+        <td>Дата</td>
+        <td>email</td>
+        <td>Телефон</td>
+    </thead>
+    {% for order in orders_from_this_ip %}
+    <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.dt_create.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ order.email }}</td>
+        <td>{{ order.phone }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}

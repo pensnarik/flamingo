@@ -1,0 +1,43 @@
+create or replace
+function admin.move_picture
+(
+    aproduct_id integer,
+    aid integer,
+    adirection varchar
+) returns integer as $$
+declare
+    vsecond_id integer;
+    vfirst_priority integer; vsecond_priority integer;
+begin
+    if adirection not in ('up', 'down') then
+        return -1;
+    end if;
+
+    with cte as (
+    select id first_id,
+           case when adirection = 'down' then
+                lead(id) over (partition by product_id order by priority)
+           else
+                lag(id)  over (partition by product_id order by priority)
+           end second_id
+      from product_image pi
+     where pi.product_id = aproduct_id
+     order by pi.priority
+     ) select second_id into vsecond_id from cte where first_id = aid;
+
+    if vsecond_id is null then
+        return -1;
+    end if;
+
+    select priority into vfirst_priority from product_image where id = aid;
+    select priority into vsecond_priority from product_image where id = vsecond_id;
+
+    update product_image set priority = -1 where id = aid;
+    update product_image set priority = vfirst_priority where id = vsecond_id;
+    update product_image set priority = vsecond_priority where id = aid;
+
+    return 1;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.move_picture(integer, integer, varchar) owner to shop;

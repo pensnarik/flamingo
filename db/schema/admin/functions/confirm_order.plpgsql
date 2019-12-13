@@ -1,0 +1,16 @@
+create or replace
+function admin.confirm_order(aid integer) returns integer as $$
+declare
+    vid integer;
+begin
+    update shop.customer_order
+       set status = 'confirmed'
+     where id = aid
+       and status = 'new'
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.confirm_order(integer) is 'Order confirmation. Order needs to be in status "new"';

@@ -1,0 +1,25 @@
+create or replace
+function api.attribute_category_get
+(
+    aname varchar,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if aname is null then
+        return null;
+    end if;
+
+    select id into vid from shop.attribute_category where name = aname;
+
+    if vid is null and acreate_if_not_exists then
+        insert into shop.attribute_category(name) values (aname)
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function api.attribute_category_get(varchar, boolean) owner to shop;

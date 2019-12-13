@@ -1,0 +1,36 @@
+{% extends 'admin/include/base.html' %}
+
+{% set current_path = '/admin/orders' %}
+
+{% set title = 'Заказы' %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/orders', 'name': 'Заказы'}] %}
+
+{% block content %}
+<table class="table table-striped">
+    <thead>
+        <th>ID</th>
+        <th>Дата</th>
+        <th>Имя</th>
+        <th>e-mail</th>
+        <th>Телефон</th>
+        <th>Сумма</th>
+        <th>Статус</th>
+    </thead>
+    {% for day in dates %}
+        <tbody>
+            <tr><td align="center" colspan="7"><h3>{{ day.russian_date }}</h3></td></tr>
+        {% for order in orders if order.russian_date == day.russian_date %}
+        <tr>
+            <td><a href="/admin/order/{{ order.id }}">{{ order.id }}</a></td>
+            <td>{{ order.dt_create.strftime('%H:%M') }}</td>
+            <td>{{ order.name }}</td>
+            <td><a href="mailto:{{ order.email }}?subject=Ваш заказ на сайте {{ config.CompanyName }}">{{ order.email }}</a></td>
+            <td>{{ order.phone }}</td>
+            <td>{{ order.amount }}</td>
+            <td>{{ order.status_name }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,59 @@
+-- drop function api.attribute_value_set(varchar, varchar, varchar, varchar, integer, varchar, boolean);
+
+create or replace
+function api.attribute_value_set
+(
+    asku varchar,
+    acategory varchar,
+    aname varchar,
+    avalue varchar,
+    apriority integer,
+    adescription varchar,
+    acreate_if_not_exists boolean default false
+) returns integer as $$
+declare
+    vresult integer;
+    vproduct_id integer := api.get_product_id(asku);
+    vcategory_id integer := api.attribute_category_get(acategory, acreate_if_not_exists);
+    vattribute_id integer;
+begin
+    if vproduct_id is null then
+        return 0;
+    end if;
+
+    vattribute_id := api.attribute_get(vcategory_id, aname, apriority, adescription, acreate_if_not_exists);
+
+    if vattribute_id is null then
+        return 0;
+    end if;
+
+    if avalue is null then
+        delete from shop.attribute_value
+         where product_id = vproduct_id
+           and attribute_id = vattribute_id
+        returning id into vresult;
+
+        return 1;
+    end if;
+
+    update shop.attribute_value
+       set value = avalue
+     where product_id = vproduct_id
+       and attribute_id = vattribute_id
+    returning id into vresult;
+
+    if not found then
+        insert into shop.attribute_value(product_id, attribute_id, value)
+        values (vproduct_id, vattribute_id, avalue)
+        returning id into vresult;
+    end if;
+
+    if vresult is not null then
+        return 1;
+    else
+        return 0;
+    end if;
+end;
+$$ language plpgsql security definer;
+
+alter function api.attribute_value_set(varchar, varchar, varchar, varchar, integer, varchar, boolean) owner to shop;

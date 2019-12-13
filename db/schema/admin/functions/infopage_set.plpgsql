@@ -1,0 +1,27 @@
+create or replace
+function admin.infopage_set
+(
+    aid integer,
+    aurl varchar,
+    acode text
+) returns integer as $$
+declare
+    vid integer;
+begin
+    if aid is null then
+        insert into shop.infopage (url, code)
+        values (aurl, acode)
+        returning id into vid;
+    else
+        update shop.infopage
+           set code = acode,
+               url = aurl
+         where id = aid
+        returning id into vid;
+    end if;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+alter function admin.infopage_set(integer, varchar, text) owner to shop;

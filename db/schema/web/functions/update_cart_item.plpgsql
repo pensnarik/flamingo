@@ -1,0 +1,53 @@
+/*
+    Функция добавляет или удаляет товар из корзины (aquantity_delta = +-1)
+
+    Возвращает всегда 2 строки:
+    1. Обновлённая строка корзины
+    2. Обновлённое "Итого" по корзине
+*/
+
+create or replace
+function web.update_cart_item
+(
+    acustomer_key char(32),
+    aproduct_id integer,
+    aquantity_delta integer
+) returns table
+(
+    id          integer,
+    product_id  integer,
+    quantity    smallint,
+    price       numeric,
+    amount      numeric
+) as $$
+declare
+    vcustomer_id integer := shop.get_customer_id(acustomer_key);
+    r record;
+begin
+    select *
+      into r
+      from shop.cart c
+     where c.customer_id = vcustomer_id
+       and c.product_id = aproduct_id
+    for update;
+
+    if not found and aquantity_delta > 0 then
+        insert into shop.cart (customer_id, product_id, quantity)
+        values (vcustomer_id, aproduct_id, aquantity_delta)
+        returning * into r;
+    elsif aquantity_delta in (-1, 1) and r.quantity + aquantity_delta >= 0 then
+        update shop.cart c set quantity = c.quantity + aquantity_delta where c.id = r.id;
+    else
+        return;
+    end if;
+
+    return query
+    select c.id, c.product_id, c.quantity, p.price, round(c.quantity * p.price, 2)
+      from shop.cart c
+      join shop.product p
+        on p.id = c.product_id
+     where c.id = r.id
+    union all
+    select -1, null, oquantity, null, oamount from web.get_cart_total(acustomer_key);
+end;
+$$ language plpgsql security definer;

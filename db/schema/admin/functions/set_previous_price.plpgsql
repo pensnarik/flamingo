@@ -1,0 +1,21 @@
+create or replace
+function admin.set_previous_price
+(
+    aproduct_id integer,
+    aprevious_price numeric
+) returns integer as $$
+declare
+    vid integer;
+begin
+    update shop.product
+       set previous_price = aprevious_price
+     where id = aproduct_id
+    returning id into vid;
+
+    return vid;
+end;
+$$ language plpgsql security definer;
+
+comment on function admin.set_previous_price(integer, numeric) is 'Updates product previous price';
+
+alter function admin.set_previous_price(integer, numeric) owner to shop;

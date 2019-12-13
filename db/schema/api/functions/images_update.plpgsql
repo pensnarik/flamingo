@@ -1,0 +1,19 @@
+create or replace
+function api.images_update
+(
+    asku varchar,
+    aimages json
+) returns integer as $$
+declare
+    vresult integer;
+begin
+     select sum(api.product_image_set(asku, url, priority))
+       into vresult
+       from json_to_recordset(aimages)
+         as r(url text, priority integer);
+
+    return vresult;
+end;
+$$ language plpgsql security definer;
+
+alter function api.images_update(varchar, json) owner to shop;

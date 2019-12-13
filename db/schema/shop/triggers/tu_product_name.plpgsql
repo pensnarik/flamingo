@@ -1,0 +1,15 @@
+create or replace
+function shop.tu_product_name() returns trigger as $$
+begin
+    new.sef_name := shop.get_new_sef_name(new.id, new.name);
+
+    return new;
+end;
+$$ language plpgsql security definer;
+
+alter function shop.tu_product_name() owner to shop;
+comment on function shop.tu_product_name() is 'Trigger to update sef_name after update name for a product';
+
+create trigger tu_product_name before update of name on shop.product
+    for each row when (new.name is distinct from old.name)
+    execute procedure shop.tu_product_name();

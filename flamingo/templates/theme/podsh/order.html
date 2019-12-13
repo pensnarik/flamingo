@@ -1,0 +1,169 @@
+{% extends 'include/base.html' %}
+
+{% block head_script %}
+        <!--[if lt IE 10]>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
+        <![endif]-->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/suggestions-jquery@17.10.1/dist/js/jquery.suggestions.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/suggestions-jquery@17.10.1/dist/css/suggestions.min.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">Пожалуйста, заполните свои контактные данные</div>
+    <div class="panel-body">
+        <form method="POST" action="/order" id="order-form">
+            <input type="hidden" name="city" value="">
+            <input type="hidden" name="delivery_code" value="">
+            <input type="hidden" name="delivery_name" value="">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4 col-xs-12">
+                        <label for="last_name" class="control-label">Фамилия</label>
+                        <input type="text" class="form-control" name="last_name">
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <label for="name" class="control-label">Имя</label>
+                        <input type="text" class="form-control" name="name">
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <label for="patronymic_name" class="control-label">Отчество</label>
+                        <input type="text" class="form-control" name="patronymic_name">
+                    </div>
+                </div>
+                <p class="text-muted">Обратите внимание, что для того, чтобы можно было получить заказ на почте, необходимо заполнить корректные фамилию, имя и отчество.</p>
+                <div class="row">
+                    <div class="col-md-4 col-xs-12">
+                        <label for="email" class="control-label">e-mail</label>
+                        <input type="text" class="form-control" name="email">
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <label for="phone" class="control-label">Телефон</label>
+                        <input type="text" class="form-control" name="phone">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <label for="address" class="control-label">Адрес доставки</label>
+                        <input type="text" class="form-control" name="address">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4 col-xs-12">
+                        <label for="postcode" class="control-label">Ваш почтовый индекс</label>
+                        <input type="text" class="form-control" name="postcode" readonly="readonly">
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <label for="delivery_cost" class="control-label">Рассчитанная стоимость доставки</label>
+                        <input type="text" class="form-control" name="delivery_cost" readonly="readonly">
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <label for="order_subtotal" class="control-label">Стоимость товаров</label>
+                        <input type="text" class="form-control" name="order_subtotal" readonly="readonly" value="{{ cart.amount|int }}">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+                    <div id="delivery-items"></div>
+                </div>
+            </div>
+            <hr>
+            <h3>Итоговая стоимость заказа: <span id="order-total">{{ cart.amount|int }}</span> руб</h3>
+            <hr>
+            <div class="row text-center">
+                    <button type="submit" id="btn-confirm-order" class="btn btn-success" disabled="disabled">Подтвердить заказ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    function validateForm() {
+
+        var isValid = ($('#order-form input[name="delivery_cost"]').val() != '' &&
+                       $('#order-form input[name="name"]').val() != '' &&
+                       $('#order-form input[name="email"]').val() != '' &&
+                       $('#order-form input[name="phone"]').val() != '' &&
+                       $('#order-form input[name="last_name"]').val() != '');
+        if (isValid) {
+            $('#btn-confirm-order').removeAttr('disabled');
+        } else {
+            $('#btn-confirm-order').attr('disabled', '');
+        }
+    }
+
+    $('input').change(validateForm);
+
+    function deliveryOnChange() {
+        console.log('val = ' + $('#order-form input[name="delivery_type"]:checked').val());
+        $('#order-form input[name="delivery_cost"]').val($('#order-form input[name="delivery_type"]:checked').val());
+        $('#order-form input[name="delivery_code"]').val($('#order-form input[name="delivery_type"]:checked').attr('code'));
+        console.log('Delivery name = ' + $('#order-form input[name="delivery_type"]:checked').attr('delivery_name'));
+        $('#order-form input[name="delivery_name"]').val($('#order-form input[name="delivery_type"]:checked').attr('delivery_name'));
+        $('#order-form #order-total').html(parseInt($('#order-form input[name="order_subtotal"]').val()) + parseInt($('#order-form input[name="delivery_cost"]').val()));
+        validateForm();
+    }
+
+    function updateDeliveryInformation(data) {
+        $('#delivery-items').empty();
+        data.forEach(function(item) {
+            console.log(item);
+            if (item.cost > 0) {
+                var label = $('<label>').text(item.title + ' - ' + item.cost + ' рублей');
+            } else {
+                var label = $('<label>').text(item.title + ' (стоимость рассчитывается менеджером)');
+            }
+            var div = $('<div class="radio">');
+            var option = $('<input type="radio" name="delivery_type">')
+                            .attr('value', item.cost)
+                            .attr('code', item.code)
+                            .attr('delivery_name', item.title);
+            label.prepend(option);
+            div.append(label);
+            $('#delivery-items').append(div);
+            $(option).change(deliveryOnChange);
+        });
+        console.log($('#order-form input[name="delivery_type"]:first').val());
+        $('#order-form input[name="delivery_type"]:first').attr('checked', true);
+        deliveryOnChange();
+    }
+
+    $("#order-form input[name='address']").suggestions({
+        token: "{{ config.DadataToken }}",
+        type: "ADDRESS",
+        count: 5,
+        /* Вызывается, когда пользователь выбирает одну из подсказок */
+        onSelect: function(suggestion) {
+            console.log(suggestion);
+            $('#order-form input[name="postcode"]').val(suggestion.data.postal_code);
+            $('#order-form input[name="city"]').val(suggestion.data.city);
+
+            $.ajax({method: 'POST', dataType: 'json', url: '/delivery/calc',
+                    contentType: 'application/json',
+                    data: JSON.stringify({'address': suggestion.data})}).done(function(data) {
+                        console.log(data);
+                        updateDeliveryInformation(data.result);
+                    });
+        }
+    });
+
+    $("#order-form input[name='email']").suggestions({
+        token: "{{ config.DadataToken }}",
+        type: "EMAIL",
+        count: 5,
+        /* Вызывается, когда пользователь выбирает одну из подсказок */
+        onSelect: function(suggestion) {
+            console.log(suggestion);
+        }
+    });
+</script>
+{% endblock %}

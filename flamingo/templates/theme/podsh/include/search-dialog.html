@@ -1,0 +1,8 @@
+<form action="/search" method="GET">
+<div class="input-group search-dialog" style="margin-bottom: 10px;">
+    <input class="form-control" type="text" placeholder="Поиск по артикулу или наименованию" name="search" value="{% if request.args.get('search') %}{{ request.args.get('search') }}{% endif %}">
+    <span class="input-group-btn">
+        <button class="btn">Поиск</button>
+    </span>
+</div>
+</form>

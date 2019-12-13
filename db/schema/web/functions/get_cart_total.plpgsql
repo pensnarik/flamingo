@@ -1,0 +1,18 @@
+create or replace
+function web.get_cart_total
+(
+    acustomer_secret char(32),
+    oquantity out smallint,
+    oamount out numeric
+) returns record as $$
+declare
+    vcustomer_id integer := shop.get_customer_id(acustomer_secret);
+begin
+    select coalesce(sum(c.quantity), 0)::smallint,
+           coalesce(sum(round(p.price * c.quantity, 2)), 0)
+      into oquantity, oamount
+      from shop.cart c
+      join shop.product p on p.id = c.product_id
+     where c.customer_id = vcustomer_id;
+end;
+$$ language plpgsql stable security definer;

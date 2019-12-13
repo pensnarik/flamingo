@@ -1,0 +1,47 @@
+{% extends 'admin/include/base.html' %}
+
+{% set title = category.name %}
+{% set breadcrumbs = [{'url': '/', 'name': 'Главная'}, {'url': '/admin', 'name': 'Панель администратора'}, {'url': '/admin/categories', 'name': 'Категории'}, {'name': category.name}] %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h3>{{ category.name }}</h3>
+
+        <h4>Настройки экспорта категории</h4>
+
+        <script type="text/javascript">
+            function toggleExport(module, category_id) {
+                var input = $('input[name="' + module + '"]');
+                input.attr('disabled', 'disabled');
+                var is_exported = input.is(':checked');
+                console.log(is_exported);
+
+                data = {'module': module, 'category_id': category_id, is_exported: is_exported};
+
+                $.post({url: '/admin/category/' + category_id + '/toggle-export',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json'})
+                 .always(function(data)
+                    {
+                        $('input[name="' + data.module + '"]').removeAttr('disabled');
+                    });
+            }
+        </script>
+
+        {% for setting in export_settings %}
+        <div class="checkbox" style="margin-bottom: 20px;">
+            <label>
+                <input class="export-setting"
+                       type="checkbox"
+                       name="{{ setting.module }}"
+                       onclick="toggleExport('{{ setting.module }}', {{ category.id }});"
+                       {% if setting.is_exported %}checked="checked"{% endif %}
+                >{{ setting.module }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

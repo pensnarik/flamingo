@@ -1,0 +1,21 @@
+create or replace
+function web.orders_by_ip_get(aip inet, aexclude_id integer) returns table
+(
+    id integer,
+    dt_create timestamptz(0),
+    phone varchar,
+    email varchar
+) as $$
+begin
+    return query
+    select o.id, o.dt_create, o.phone, o.email
+      from shop.customer_order o
+     where o.ip = aip and o.id != aexclude_id
+    order by o.dt_create;
+end;
+$$ language plpgsql security definer;
+
+comment on function web.orders_by_ip_get(inet, integer)
+    is 'Returns the list of all order made from a given IP, excluding order with id = aexclude_id';
+
+alter function web.orders_by_ip_get(inet, integer) owner to shop;

@@ -1,0 +1,1 @@
+create type shop.t_currency as enum ('rub', 'usd', 'eur');

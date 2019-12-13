@@ -1,0 +1,1 @@
+create type shop.t_order_status as enum ('new', 'confirmed', 'paid', 'closed', 'cancelled');
