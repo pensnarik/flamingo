@@ -5967,7 +5967,7 @@ end;
 $$;
 
 
-ALTER FUNCTION web.get_attributes(aproduct_id integer) OWNER TO migrator;
+ALTER FUNCTION web.get_attributes(aproduct_id integer) OWNER TO shop;
 
 --
 -- Name: get_banners(); Type: FUNCTION; Schema: web; Owner: shop
