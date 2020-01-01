@@ -9,7 +9,7 @@ begin
         r := new;
     end if;
 
-    update shop.product set path = web.product_path_get(r.product_id) where id = r.product_id;
+    update shop.product set path = web.product_path_get_fast(r.product_id) where id = r.product_id;
 
     return r;
 end;
