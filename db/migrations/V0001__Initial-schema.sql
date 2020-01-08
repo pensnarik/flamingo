@@ -5447,7 +5447,7 @@ end;
 $$;
 
 
-ALTER FUNCTION shop.ti_product_history() OWNER TO migrator;
+ALTER FUNCTION shop.ti_product_history() OWNER TO shop;
 
 --
 -- Name: tidu_product_category(); Type: FUNCTION; Schema: shop; Owner: migrator
@@ -5472,7 +5472,7 @@ end;
 $$;
 
 
-ALTER FUNCTION shop.tidu_product_category() OWNER TO migrator;
+ALTER FUNCTION shop.tidu_product_category() OWNER TO shop;
 
 --
 -- Name: tu_product_available(); Type: FUNCTION; Schema: shop; Owner: migrator
@@ -5492,7 +5492,7 @@ end;
 $$;
 
 
-ALTER FUNCTION shop.tu_product_available() OWNER TO migrator;
+ALTER FUNCTION shop.tu_product_available() OWNER TO shop;
 
 --
 -- Name: tu_product_name(); Type: FUNCTION; Schema: shop; Owner: shop
@@ -5536,7 +5536,7 @@ end;
 $$;
 
 
-ALTER FUNCTION shop.tu_product_price() OWNER TO migrator;
+ALTER FUNCTION shop.tu_product_price() OWNER TO shop;
 
 --
 -- Name: product_stat_update(integer, integer, integer, integer); Type: FUNCTION; Schema: stat; Owner: shop
@@ -5810,7 +5810,7 @@ end;
 $$;
 
 
-ALTER FUNCTION web.create_order(acustomer_secret character, aemail character varying, aphone character varying, aname character varying, acity character varying, aaddress character varying, aip inet, auser_agent character varying, adelivery_code character varying, adelivery_name character varying, adelivery_cost numeric, alast_name character varying, apatronymic_name character varying, apayment_method_id integer, OUT oid integer, OUT otoken character) OWNER TO migrator;
+ALTER FUNCTION web.create_order(acustomer_secret character, aemail character varying, aphone character varying, aname character varying, acity character varying, aaddress character varying, aip inet, auser_agent character varying, adelivery_code character varying, adelivery_name character varying, adelivery_cost numeric, alast_name character varying, apatronymic_name character varying, apayment_method_id integer, OUT oid integer, OUT otoken character) OWNER TO shop;
 
 --
 -- Name: create_payment(character varying, integer, shop.t_currency, numeric, inet, character varying); Type: FUNCTION; Schema: web; Owner: shop
@@ -6320,7 +6320,7 @@ end;
 $$;
 
 
-ALTER FUNCTION web.get_order(aid integer, atoken character varying) OWNER TO migrator;
+ALTER FUNCTION web.get_order(aid integer, atoken character varying) OWNER TO shop;
 
 --
 -- Name: get_order_for_customer(integer, character varying); Type: FUNCTION; Schema: web; Owner: shop
@@ -6679,7 +6679,7 @@ CREATE FUNCTION web.is_ip_blacklisted(aip inet) RETURNS boolean
 $$;
 
 
-ALTER FUNCTION web.is_ip_blacklisted(aip inet) OWNER TO migrator;
+ALTER FUNCTION web.is_ip_blacklisted(aip inet) OWNER TO shop;
 
 --
 -- Name: is_module_enabled(character varying); Type: FUNCTION; Schema: web; Owner: shop
