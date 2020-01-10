@@ -5,7 +5,7 @@ import requests
 from flamingo.core.mail import MailInterface
 from flamingo.module import register, PluginInterface
 
-__all__ = ['MainGun']
+__all__ = ['MailGun']
 
 class MailGun(PluginInterface, MailInterface):
 
