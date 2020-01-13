@@ -751,7 +751,7 @@ CREATE TABLE shop.customer_order (
     id integer NOT NULL,
     customer_id integer NOT NULL,
     dt_create timestamp(0) with time zone DEFAULT now() NOT NULL,
-    amount numeric(8,2),
+    amount numeric(10,2),
     status shop.t_order_status DEFAULT 'new'::shop.t_order_status NOT NULL,
     token character(32) DEFAULT web.generate_customer_secret() NOT NULL,
     email character varying(126) NOT NULL,
@@ -1031,9 +1031,9 @@ CREATE TABLE shop.order_item (
     id integer NOT NULL,
     order_id integer NOT NULL,
     product_id integer NOT NULL,
-    price numeric(8,2) NOT NULL,
+    price numeric(10,2) NOT NULL,
     quantity integer NOT NULL,
-    amount numeric(8,2) NOT NULL
+    amount numeric(10,2) NOT NULL
 );
 
 
@@ -1072,7 +1072,7 @@ CREATE TABLE shop.payment (
     order_id integer NOT NULL,
     ip inet NOT NULL,
     currency shop.t_currency NOT NULL,
-    amount numeric(8,2),
+    amount numeric(10,2),
     external_id character varying(255)
 );
 
@@ -1154,7 +1154,7 @@ CREATE TABLE shop.product (
     name text NOT NULL,
     url text,
     manufacturer_id integer,
-    price numeric(8,2),
+    price numeric(10,2),
     available integer DEFAULT 0 NOT NULL,
     is_visible boolean DEFAULT false NOT NULL,
     viewed integer DEFAULT 0 NOT NULL,
@@ -1702,7 +1702,7 @@ CREATE TABLE stat.product_price_history (
     id integer NOT NULL,
     product_id integer NOT NULL,
     dt_from timestamp(0) with time zone DEFAULT now() NOT NULL,
-    price numeric(8,2),
+    price numeric(10,2),
     user_id integer DEFAULT core.get_current_user()
 );
 
